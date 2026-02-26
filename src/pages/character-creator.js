@@ -90,7 +90,7 @@ export function renderCharacterCreatorPage(container, navigate) {
               <div style="margin-bottom: var(--sp-lg);">
                 <div style="display: flex; align-items: center; gap: var(--sp-sm); margin-bottom: var(--sp-sm);">
                   <span class="badge badge-gold">+${level.rating}</span>
-                  <span style="font-weight: 600; font-size: 0.85rem;">${level.label} — ${level.count} ${t('creator.skills.count')}</span>
+                  <span style="font-weight: 600; font-size: 0.85rem;">${t('pyramid.' + level.rating)} — ${level.count} ${t('creator.skills.count')}</span>
                 </div>
                 <div class="skill-row" style="flex-wrap: wrap; justify-content: flex-start;">
                   ${Array.from({ length: level.count }, (_, idx) => {

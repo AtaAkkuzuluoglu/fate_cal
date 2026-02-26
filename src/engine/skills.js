@@ -40,7 +40,7 @@ export function validateSkillPyramid(skills) {
     for (const [skill, rating] of Object.entries(skills)) {
         if (rating > 0) {
             if (!SKILL_LIST.includes(skill)) {
-                errors.push(`Geçersiz yetenek: ${skill}`);
+                errors.push(t('error.invalid_skill', { skill }));
             }
             if (counts[rating] !== undefined) {
                 counts[rating]++;
@@ -51,7 +51,7 @@ export function validateSkillPyramid(skills) {
     for (const level of PYRAMID_STRUCTURE) {
         if (counts[level.rating] !== level.count) {
             errors.push(
-                `${level.label} (+${level.rating}): ${level.count} yetenek olmalı, ${counts[level.rating]} tane var`
+                t('error.pyramid', { label: t('pyramid.' + level.rating), rating: level.rating, expected: level.count, actual: counts[level.rating] })
             );
         }
     }

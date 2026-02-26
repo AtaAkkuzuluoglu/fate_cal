@@ -148,6 +148,13 @@ const dictionary = {
     'sheet.adventure_code': { tr: 'Serüven Kodu', en: 'Campaign Code' },
     'sheet.shift_label': { tr: 'shift', en: 'shift' },
 
+    'pyramid.4': { tr: 'Harika', en: 'Great' },
+    'pyramid.3': { tr: 'İyi', en: 'Good' },
+    'pyramid.2': { tr: 'Ortalama', en: 'Fair' },
+    'pyramid.1': { tr: 'Sıradan', en: 'Average' },
+    'error.pyramid': { tr: '{label} (+{rating}): {expected} yetenek olmalı, {actual} tane var', en: '{label} (+{rating}): must have {expected} skills, has {actual}' },
+    'error.invalid_skill': { tr: 'Geçersiz yetenek: {skill}', en: 'Invalid skill: {skill}' },
+
     // Campaign
     'campaign.title_dm': { tr: 'Oyun Yöneticisi Paneli', en: 'Dungeon Master Panel' },
     'campaign.title_player': { tr: 'Oyuncu Paneli', en: 'Player Panel' },

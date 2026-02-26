@@ -207,7 +207,7 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
 
             <!-- Skills -->
             <div class="card animate-in animate-in-delay-4">
-              <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">Yetenekler</h3>
+              <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">${t('char.skills')}</h3>
               <div class="skill-pyramid">
                 ${PYRAMID_STRUCTURE.map(level => {
         const skills = Object.entries(character.skills)
