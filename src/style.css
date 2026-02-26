@@ -1150,6 +1150,12 @@ h3 {
 }
 
 /* ── Responsive ── */
+
+/* Mobile bottom tab bar — hidden on desktop, shown on mobile */
+#mobile-tab-bar {
+  display: none;
+}
+
 @media (max-width: 768px) {
   h1 {
     font-size: 1.75rem;
@@ -1169,38 +1175,62 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  /* Hide desktop nav links on mobile */
   .nav-links {
+    display: none;
+  }
+
+  /* Show the mobile bottom tab bar */
+  #mobile-tab-bar {
+    display: flex;
     position: fixed;
-    bottom: 0px;
+    bottom: 0;
     left: 0;
     right: 0;
     background: var(--bg-nav);
     backdrop-filter: blur(20px) saturate(1.5);
     -webkit-backdrop-filter: blur(20px) saturate(1.5);
     border-top: 1px solid var(--border-subtle);
-    border-bottom: none;
-    padding: var(--sp-xs);
-    padding-bottom: env(safe-area-inset-bottom, 12px);
-    display: flex;
+    padding: var(--sp-xs) 0;
+    padding-bottom: env(safe-area-inset-bottom, 8px);
     justify-content: space-around;
-    gap: 0;
+    align-items: center;
     z-index: var(--z-nav);
   }
 
-  .nav-link {
+  .mobile-tab {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: var(--sp-xs) var(--sp-sm);
-    font-size: 0.65rem;
-    text-align: center;
+    gap: 3px;
+    padding: 6px 12px;
+    background: none;
+    border: none;
     border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 0.6rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
   }
 
-  .nav-link span {
-    font-size: 1.2rem;
-    margin-bottom: 2px;
+  .mobile-tab:hover {
+    color: var(--text-primary);
+  }
+
+  .mobile-tab.active {
+    color: var(--gold);
+  }
+
+  .mobile-tab-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+
+  .mobile-tab-label {
+    font-size: 0.6rem;
+    white-space: nowrap;
   }
 
   .dice-container {

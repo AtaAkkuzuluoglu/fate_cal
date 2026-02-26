@@ -14,8 +14,10 @@ const NAV_ITEMS = [
 
 export function renderNavbar(currentPage, onNavigate) {
   const nav = document.getElementById('main-nav');
+  const mobileTabBar = document.getElementById('mobile-tab-bar');
   const user = getCurrentUser();
 
+  // ── Top navbar (brand + desktop links + user section) ──
   nav.innerHTML = `
     <div class="nav-inner">
       <a class="nav-brand" href="#home" style="display: flex; align-items: center; gap: var(--sp-sm);">
@@ -33,7 +35,7 @@ export function renderNavbar(currentPage, onNavigate) {
         `).join('')}
       </ul>
       <div class="nav-user">
-        <button class="btn btn-sm" id="lang-toggle-btn" style="background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; font-weight: bold; font-family: var(--font-display); font-size: 0.8rem; cursor: pointer;">
+        <button class="btn btn-sm" id="lang-toggle-btn" style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-card); border-radius: 4px; padding: 4px 10px; font-weight: bold; font-family: var(--font-display); font-size: 0.8rem; cursor: pointer;">
           ${getLanguage() === 'tr' ? 'ENG' : 'TR'}
         </button>
         ${user ? `
@@ -46,6 +48,25 @@ export function renderNavbar(currentPage, onNavigate) {
     </div>
   `;
 
+  // ── Mobile bottom tab bar (separate element, not inside #main-nav) ──
+  if (mobileTabBar) {
+    mobileTabBar.innerHTML = `
+      ${NAV_ITEMS.map(item => `
+        <button class="mobile-tab ${currentPage === item.id ? 'active' : ''}"
+                data-page="${item.id}">
+          <span class="mobile-tab-icon">${item.icon}</span>
+          <span class="mobile-tab-label">${t(item.labelKey)}</span>
+        </button>
+      `).join('')}
+    `;
+
+    mobileTabBar.querySelectorAll('.mobile-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        onNavigate(btn.dataset.page);
+      });
+    });
+  }
+
   // Add styles for user section
   if (!document.getElementById('nav-user-style')) {
     const style = document.createElement('style');
@@ -55,6 +76,7 @@ export function renderNavbar(currentPage, onNavigate) {
         display: flex;
         align-items: center;
         gap: var(--sp-sm);
+        flex-shrink: 0;
       }
       .nav-username {
         font-size: 0.8rem;
