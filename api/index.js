@@ -1,11 +1,7 @@
 // ═══════════════════════════════════════
-// FATE CONDENSED — Local Dev Server
+// Vercel Serverless Handler
 // ═══════════════════════════════════════
 
-const app = require('./app');
+const app = require('../server/app');
 
-const PORT = process.env.PORT || 3001;
-
-app.listen(PORT, () => {
-    console.log(`\n  ⚡ Fate Condensed Server running on http://localhost:${PORT}\n`);
-});
+module.exports = app;

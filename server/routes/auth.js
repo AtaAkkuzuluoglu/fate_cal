@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════
 
 const express = require('express');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { createUser, findUserByUsername } = require('../db');
 const { generateToken } = require('../middleware/auth');
 
