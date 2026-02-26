@@ -28,8 +28,17 @@ router.get('/characters', async (req, res) => {
 // GET /api/characters/:id — get single character
 router.get('/characters/:id', async (req, res) => {
     try {
-        const row = await get('SELECT * FROM characters WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
-        if (!row) return res.status(404).json({ error: 'Karakter bulunamadı' });
+        let row = await get('SELECT * FROM characters WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
+
+        // If not owner, check if user is the DM for this character in their campaign
+        if (!row) {
+            const dmLink = await get('SELECT 1 FROM campaign_characters WHERE character_id = ? AND dm_id = ?', [req.params.id, req.userId]);
+            if (dmLink) {
+                row = await get('SELECT * FROM characters WHERE id = ?', [req.params.id]);
+            }
+        }
+
+        if (!row) return res.status(404).json({ error: 'Karakter bulunamadı veya yetkiniz yok' });
         res.json(JSON.parse(row.data));
     } catch (err) {
         console.error('Get character error:', err);
@@ -65,12 +74,25 @@ router.post('/characters', async (req, res) => {
 router.put('/characters/:id', async (req, res) => {
     try {
         const character = req.body;
-        const existing = await get('SELECT * FROM characters WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
+        let existing = await get('SELECT * FROM characters WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
+        let isOwner = !!existing;
+        let isDM = false;
+
         if (!existing) {
+            const dmLink = await get('SELECT 1 FROM campaign_characters WHERE character_id = ? AND dm_id = ?', [req.params.id, req.userId]);
+            if (dmLink) {
+                isDM = true;
+                existing = await get('SELECT * FROM characters WHERE id = ?', [req.params.id]);
+            }
+        }
+
+        if (!existing && !isDM) {
             // Insert if doesn't exist
             await run('INSERT INTO characters (id, user_id, data) VALUES (?, ?, ?)', [req.params.id, req.userId, JSON.stringify(character)]);
+        } else if (isOwner || isDM) {
+            await run('UPDATE characters SET data = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [JSON.stringify(character), req.params.id]);
         } else {
-            await run('UPDATE characters SET data = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?', [JSON.stringify(character), req.params.id, req.userId]);
+            return res.status(403).json({ error: 'Yetkisiz erişim' });
         }
         res.json(character);
     } catch (err) {
