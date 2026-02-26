@@ -194,7 +194,7 @@ export function renderDiceRollerPage(container) {
 
     render();
     showToast(`${display.emoji} ${display.label}: ${result >= 0 ? '+' : ''}${result}`,
-      out.outcome === 'fail' ? 'error' : 'success'
+      result > 0 ? 'success' : result < 0 ? 'error' : 'warning'
     );
   }
 
