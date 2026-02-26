@@ -29,10 +29,12 @@ const routes = {
 const publicPages = ['auth'];
 
 export function navigate(page, params = {}) {
-  currentPage = page;
-  pageParams = params;
-  window.location.hash = page;
-  renderApp();
+  let hashStr = page;
+  if (params.id) {
+    hashStr += `/${params.id}`;
+  }
+  window.location.hash = hashStr;
+  // hashchange event listener will automatically catch this and run renderApp()
 }
 
 function renderApp() {
