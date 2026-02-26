@@ -2,14 +2,16 @@
 // Fate Dice Engine — 4dF roller
 // ═══════════════════════════════════════
 
+import { t } from './i18n.js';
+
 const LADDER = {
-    '-4': 'Berbat', '-3': 'Korkunç',
-    '-2': 'Kötü', '-1': 'Zayıf',
-    '0': 'Sıradan', '1': 'Ortalama',
-    '2': 'Adil', '3': 'İyi',
-    '4': 'Harika', '5': 'Mükemmel',
-    '6': 'İnanılmaz', '7': 'Epik',
-    '8': 'Efsanevi'
+    '-4': 'Terrible', '-3': 'Abysmal',
+    '-2': 'Poor', '-1': 'Mediocre',
+    '0': 'Average', '1': 'Fair',
+    '2': 'Good', '3': 'Great',
+    '4': 'Superb', '5': 'Fantastic',
+    '6': 'Epic', '7': 'Legendary',
+    '8': 'Mythic'
 };
 
 /**
@@ -64,7 +66,7 @@ export function getOutcome(result, difficulty) {
  */
 export function getLadderLabel(value) {
     const clamped = Math.max(-4, Math.min(8, value));
-    return LADDER[String(clamped)] || `+${clamped}`;
+    return t(`dice.ladder.${clamped}`) || `+${clamped}`;
 }
 
 /**
@@ -97,13 +99,13 @@ export function getDieClass(value) {
 export function getOutcomeDisplay(outcome) {
     switch (outcome) {
         case 'fail':
-            return { label: 'Başarısız', color: 'var(--danger)', emoji: '✗' };
+            return { label: t('outcome.fail'), color: 'var(--danger)', emoji: '✗' };
         case 'tie':
-            return { label: 'Berabere', color: 'var(--warning)', emoji: '≈' };
+            return { label: t('outcome.tie'), color: 'var(--warning)', emoji: '≈' };
         case 'success':
-            return { label: 'Başarı', color: 'var(--success)', emoji: '✓' };
+            return { label: t('outcome.success'), color: 'var(--success)', emoji: '✓' };
         case 'succeed_with_style':
-            return { label: 'Şıklıkla Başarı!', color: 'var(--gold)', emoji: '★' };
+            return { label: t('outcome.succeed_with_style'), color: 'var(--gold)', emoji: '★' };
         default:
             return { label: outcome, color: 'var(--text-secondary)', emoji: '' };
     }

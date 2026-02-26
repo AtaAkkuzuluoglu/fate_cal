@@ -3,10 +3,11 @@
 // ═══════════════════════════════════════
 
 import { loadCharacters } from '../engine/storage.js';
+import { t } from '../engine/i18n.js';
 
 export async function renderHomePage(container, navigate) {
   // Show loading state
-  container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Yükleniyor...</p></div>`;
+  container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Loading...</p></div>`;
 
   const characters = await loadCharacters();
 
@@ -15,12 +16,12 @@ export async function renderHomePage(container, navigate) {
       <!-- Hero Section -->
       <section class="hero animate-in">
         <div class="hero-content">
-          <h1 class="hero-title">
+          <h1 class="hero-title" style="white-space: pre-wrap;">
             <span class="hero-fate">FATE</span>
             <span class="hero-condensed">CONDENSED</span>
           </h1>
-          <p class="hero-subtitle">Kaderinizi zarlara bırakın, hikayenizi yazın.</p>
-          <p class="hero-desc">Fate Condensed masa üstü rol yapma sistemi ile dijital ortamda maceraya atılın.</p>
+          <p class="hero-subtitle">${t('home.title').replace('Fate Condensed\n', '')}</p>
+          <p class="hero-desc">${t('home.subtitle')}</p>
         </div>
       </section>
 
@@ -29,18 +30,18 @@ export async function renderHomePage(container, navigate) {
         <div class="grid-3">
           <button class="card quick-card animate-in animate-in-delay-1" id="qa-create">
             <div class="quick-icon">✦</div>
-            <h3>Karakter Oluştur</h3>
-            <p>Aspect'ler, yetenekler ve stunt'lar ile karakterini yarat</p>
+            <h3>${t('nav.create')}</h3>
+            <p>${t('home.btn.create').replace('✦ ', '')}</p>
           </button>
           <button class="card quick-card animate-in animate-in-delay-2" id="qa-dice">
             <div class="quick-icon">🎲</div>
-            <h3>Zar At</h3>
-            <p>4 Fate zarı at, yetenek ve bonus ekle</p>
+            <h3>${t('nav.dice')}</h3>
+            <p>Roll 4dF with skills and fate points</p>
           </button>
           <button class="card quick-card animate-in animate-in-delay-3" id="qa-campaign">
             <div class="quick-icon">📜</div>
-            <h3>Serüven</h3>
-            <p>Kampanyalara katıl, ortak notları oku veya yönet</p>
+            <h3>${t('nav.campaign')}</h3>
+            <p>${t('home.btn.session').replace('🎲 ', '')}</p>
           </button>
         </div>
       </section>
@@ -48,15 +49,15 @@ export async function renderHomePage(container, navigate) {
       <!-- Characters List -->
       <section class="characters-section animate-in animate-in-delay-4">
         <div class="section-header">
-          <h2>Karakterlerim</h2>
-          <p>${characters.length} karakter kayıtlı</p>
+          <h2>${t('home.my_characters')}</h2>
+          <p>${characters.length}</p>
         </div>
         ${characters.length > 0 ? `
           <div class="grid-2">
             ${characters.map(c => `
               <div class="card char-card" data-id="${c.id}">
                 <div class="char-card-header">
-                  <h3 class="char-name">${c.name || 'İsimsiz'}</h3>
+                  <h3 class="char-name">${c.name || '???'}</h3>
                   <div class="char-fp">
                     <span class="fp-token-sm">${c.fatePoints}</span>
                     <span class="fp-label-sm">FP</span>
@@ -75,24 +76,10 @@ export async function renderHomePage(container, navigate) {
         ` : `
           <div class="empty-state">
             <div class="empty-icon">✦</div>
-            <p>Henüz karakter oluşturmadınız</p>
-            <button class="btn btn-gold" id="empty-create-btn">İlk Karakterini Oluştur</button>
+            <p>${t('home.no_characters')}</p>
+            <button class="btn btn-gold" id="empty-create-btn">${t('home.btn.create')}</button>
           </div>
         `}
-      </section>
-
-      <!-- System Info -->
-      <section class="system-info animate-in animate-in-delay-4">
-        <div class="card card-purple">
-          <h3 style="margin-bottom: var(--sp-md);">Fate Condensed Nedir?</h3>
-          <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7;">
-            Fate Condensed, hikaye odaklı bir masa üstü rol yapma oyunu sistemidir. 
-            Oyuncular <strong style="color: var(--gold);">Aspect</strong>'ler ile karakterlerini tanımlar, 
-            <strong style="color: var(--gold);">4 Fate Zarı</strong> (4dF) ile aksiyonlarını çözer ve 
-            <strong style="color: var(--gold);">Fate Point</strong>'ler ile kaderlerini şekillendirir.
-            Sistem dört temel aksiyon sunar: Overcome, Create an Advantage, Attack ve Defend.
-          </p>
-        </div>
       </section>
     </div>
   `;

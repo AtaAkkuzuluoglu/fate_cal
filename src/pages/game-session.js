@@ -6,23 +6,23 @@ import { loadCharacters, saveSession, loadSession } from '../engine/storage.js';
 import { createConflict, createContest, createChallenge, setTurnOrder, addSituationAspect, removeSituationAspect, logAction, endScene } from '../engine/conflict.js';
 import { rollFateDice, calculateResult, getOutcome, getLadderLabel, getDieSymbol, getDieClass, getOutcomeDisplay } from '../engine/dice.js';
 import { invoke, compel } from '../engine/fate-points.js';
-import { SKILL_LIST, SKILL_TRANSLATIONS } from '../engine/skills.js';
+import { SKILL_LIST, getSkillTranslation } from '../engine/skills.js';
 import { saveCharacter, getCharacter } from '../engine/storage.js';
 import { showToast } from '../components/toast.js';
 
 export async function renderGameSessionPage(container, navigate) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Yükleniyor...</p></div>`;
-    const allCharacters = await loadCharacters();
-    let session = (await loadSession()) || { scene: null, selectedCharacters: [] };
-    let activeCharId = session.selectedCharacters?.[0] || null;
-    let cachedActiveChar = activeCharId ? await getCharacter(activeCharId) : null;
+  container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Yükleniyor...</p></div>`;
+  const allCharacters = await loadCharacters();
+  let session = (await loadSession()) || { scene: null, selectedCharacters: [] };
+  let activeCharId = session.selectedCharacters?.[0] || null;
+  let cachedActiveChar = activeCharId ? await getCharacter(activeCharId) : null;
 
-    function getActiveChar() {
-        return cachedActiveChar;
-    }
+  function getActiveChar() {
+    return cachedActiveChar;
+  }
 
-    function render() {
-        container.innerHTML = `
+  function render() {
+    container.innerHTML = `
       <div class="session-page">
         <div class="section-header animate-in">
           <h2>⚡ Oyun Oturumu</h2>
@@ -134,10 +134,10 @@ export async function renderGameSessionPage(container, navigate) {
                     <select class="select" id="action-skill">
                       <option value="0">Seçin...</option>
                       ${getActiveChar() ? Object.entries(getActiveChar().skills)
-                .filter(([, r]) => r > 0)
-                .sort(([, a], [, b]) => b - a)
-                .map(([s, r]) => `<option value="${r}" data-skill="${s}">${SKILL_TRANSLATIONS[s]} (+${r})</option>`)
-                .join('') : SKILL_LIST.map(s => `<option value="0">${SKILL_TRANSLATIONS[s]}</option>`).join('')}
+        .filter(([, r]) => r > 0)
+        .sort(([, a], [, b]) => b - a)
+        .map(([s, r]) => `<option value="${r}" data-skill="${s}">${getSkillTranslation(s)} (+${r})</option>`)
+        .join('') : SKILL_LIST.map(s => `<option value="0">${getSkillTranslation(s)}</option>`).join('')}
                     </select>
                   </div>
                   <div>
@@ -162,7 +162,7 @@ export async function renderGameSessionPage(container, navigate) {
                 <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">📜 Olay Günlüğü</h3>
                 <div class="action-log" id="action-log">
                   ${(session.scene?.log || []).length > 0 ?
-                session.scene.log.slice().reverse().map(entry => `
+        session.scene.log.slice().reverse().map(entry => `
                       <div class="log-entry ${entry.type}">
                         <span style="font-size: 0.75rem; color: var(--text-muted);">
                           ${new Date(entry.timestamp).toLocaleTimeString('tr-TR')}
@@ -174,7 +174,7 @@ export async function renderGameSessionPage(container, navigate) {
                         <p style="color: var(--text-muted); font-size: 0.85rem;">Henüz aksiyon yapılmadı</p>
                       </div>
                     `
-            }
+      }
                 </div>
               </div>
             </div>
@@ -183,11 +183,11 @@ export async function renderGameSessionPage(container, navigate) {
       </div>
     `;
 
-        bindEvents();
-    }
+    bindEvents();
+  }
 
-    function renderConflictUI() {
-        return `
+  function renderConflictUI() {
+    return `
       <div>
         <span class="label">Sıra (tıklayarak seçin)</span>
         <div style="display: flex; gap: var(--sp-sm); flex-wrap: wrap;">
@@ -200,10 +200,10 @@ export async function renderGameSessionPage(container, navigate) {
         </div>
       </div>
     `;
-    }
+  }
 
-    function renderContestUI() {
-        return `
+  function renderContestUI() {
+    return `
       <div>
         <span class="label">Zaferler (${session.scene.victoriesNeeded} gerekli)</span>
         <div style="display: flex; flex-direction: column; gap: var(--sp-sm);">
@@ -221,10 +221,10 @@ export async function renderGameSessionPage(container, navigate) {
         </div>
       </div>
     `;
-    }
+  }
 
-    function renderChallengeUI() {
-        return `
+  function renderChallengeUI() {
+    return `
       <div>
         <span class="label">Engeller</span>
         <div style="display: flex; flex-direction: column; gap: var(--sp-sm);">
@@ -244,173 +244,173 @@ export async function renderGameSessionPage(container, navigate) {
         </div>
       </div>
     `;
-    }
+  }
 
-    function bindEvents() {
-        document.getElementById('go-create')?.addEventListener('click', () => navigate('character-creator'));
+  function bindEvents() {
+    document.getElementById('go-create')?.addEventListener('click', () => navigate('character-creator'));
 
-        // Character select
-        container.querySelectorAll('.char-select-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                activeCharId = btn.dataset.id;
-                cachedActiveChar = await getCharacter(activeCharId);
-                session.selectedCharacters = [activeCharId];
-                await saveSession(session);
-                render();
-            });
-        });
+    // Character select
+    container.querySelectorAll('.char-select-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        activeCharId = btn.dataset.id;
+        cachedActiveChar = await getCharacter(activeCharId);
+        session.selectedCharacters = [activeCharId];
+        await saveSession(session);
+        render();
+      });
+    });
 
-        // FP controls
-        document.getElementById('session-fp-minus')?.addEventListener('click', async () => {
-            const char = getActiveChar();
-            if (char && char.fatePoints > 0) {
-                char.fatePoints--;
-                await saveCharacter(char);
-                render();
+    // FP controls
+    document.getElementById('session-fp-minus')?.addEventListener('click', async () => {
+      const char = getActiveChar();
+      if (char && char.fatePoints > 0) {
+        char.fatePoints--;
+        await saveCharacter(char);
+        render();
+      }
+    });
+    document.getElementById('session-fp-plus')?.addEventListener('click', async () => {
+      const char = getActiveChar();
+      if (char) {
+        char.fatePoints++;
+        await saveCharacter(char);
+        render();
+      }
+    });
+
+    // Scene start
+    container.querySelectorAll('.scene-start-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const type = btn.dataset.type;
+        if (type === 'conflict') {
+          session.scene = createConflict(allCharacters);
+        } else if (type === 'contest') {
+          session.scene = createContest(allCharacters, '', 3);
+        } else {
+          session.scene = createChallenge([
+            { description: 'Engel 1', difficulty: 2 },
+            { description: 'Engel 2', difficulty: 3 },
+            { description: 'Engel 3', difficulty: 4 },
+          ]);
+        }
+        await saveSession(session);
+        showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} sahnesi başlatıldı!`, 'success');
+        render();
+      });
+    });
+
+    // End scene
+    document.getElementById('end-scene-btn')?.addEventListener('click', async () => {
+      if (session.scene) {
+        endScene(session.scene);
+        session.scene = null;
+        await saveSession(session);
+        showToast('Sahne sona erdi', 'info');
+        render();
+      }
+    });
+
+    // Turn order (conflict)
+    container.querySelectorAll('.turn-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (session.scene) {
+          setTurnOrder(session.scene, btn.dataset.char);
+          await saveSession(session);
+          render();
+        }
+      });
+    });
+
+    // Victory (contest)
+    container.querySelectorAll('.victory-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (session.scene) {
+          const p = session.scene.participants.find(p => p.characterId === btn.dataset.char);
+          if (p) {
+            p.victories++;
+            logAction(session.scene, 'advantage', `${p.name} 1 zafer kazandı (${p.victories}/${session.scene.victoriesNeeded})`);
+            if (p.victories >= session.scene.victoriesNeeded) {
+              logAction(session.scene, 'info', `🏆 ${p.name} yarışmayı kazandı!`);
+              showToast(`${p.name} yarışmayı kazandı!`, 'success');
             }
-        });
-        document.getElementById('session-fp-plus')?.addEventListener('click', async () => {
-            const char = getActiveChar();
-            if (char) {
-                char.fatePoints++;
-                await saveCharacter(char);
-                render();
-            }
-        });
+            await saveSession(session);
+            render();
+          }
+        }
+      });
+    });
 
-        // Scene start
-        container.querySelectorAll('.scene-start-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const type = btn.dataset.type;
-                if (type === 'conflict') {
-                    session.scene = createConflict(allCharacters);
-                } else if (type === 'contest') {
-                    session.scene = createContest(allCharacters, '', 3);
-                } else {
-                    session.scene = createChallenge([
-                        { description: 'Engel 1', difficulty: 2 },
-                        { description: 'Engel 2', difficulty: 3 },
-                        { description: 'Engel 3', difficulty: 4 },
-                    ]);
-                }
-                await saveSession(session);
-                showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} sahnesi başlatıldı!`, 'success');
-                render();
-            });
-        });
+    // Obstacle (challenge)
+    container.querySelectorAll('.obstacle-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (session.scene) {
+          const idx = parseInt(btn.dataset.index);
+          const obstacle = session.scene.obstacles[idx];
+          if (obstacle) {
+            const skill = parseInt(document.getElementById('action-skill')?.value || '0');
+            const dice = rollFateDice();
+            const result = calculateResult(dice, skill);
+            const out = getOutcome(result, obstacle.difficulty);
+            const disp = getOutcomeDisplay(out.outcome);
 
-        // End scene
-        document.getElementById('end-scene-btn')?.addEventListener('click', async () => {
-            if (session.scene) {
-                endScene(session.scene);
-                session.scene = null;
-                await saveSession(session);
-                showToast('Sahne sona erdi', 'info');
-                render();
-            }
-        });
+            obstacle.resolved = out.outcome !== 'fail';
+            obstacle.result = out.outcome;
+            logAction(session.scene, 'roll',
+              `${getActiveChar()?.name || 'Oyuncu'} engeli çözmeye çalıştı: ${obstacle.description} → ${disp.emoji} ${disp.label} (${result >= 0 ? '+' : ''}${result} vs +${obstacle.difficulty})`
+            );
+            await saveSession(session);
+            showToast(`${disp.emoji} ${disp.label}`, out.outcome === 'fail' ? 'error' : 'success');
+            render();
+          }
+        }
+      });
+    });
 
-        // Turn order (conflict)
-        container.querySelectorAll('.turn-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                if (session.scene) {
-                    setTurnOrder(session.scene, btn.dataset.char);
-                    await saveSession(session);
-                    render();
-                }
-            });
-        });
+    // Situation aspects
+    document.getElementById('add-aspect-btn')?.addEventListener('click', async () => {
+      const input = document.getElementById('new-aspect-input');
+      if (input?.value.trim() && session.scene) {
+        addSituationAspect(session.scene, input.value.trim());
+        await saveSession(session);
+        render();
+      }
+    });
+    container.querySelectorAll('.remove-aspect-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (session.scene) {
+          removeSituationAspect(session.scene, parseInt(btn.dataset.index));
+          await saveSession(session);
+          render();
+        }
+      });
+    });
 
-        // Victory (contest)
-        container.querySelectorAll('.victory-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                if (session.scene) {
-                    const p = session.scene.participants.find(p => p.characterId === btn.dataset.char);
-                    if (p) {
-                        p.victories++;
-                        logAction(session.scene, 'advantage', `${p.name} 1 zafer kazandı (${p.victories}/${session.scene.victoriesNeeded})`);
-                        if (p.victories >= session.scene.victoriesNeeded) {
-                            logAction(session.scene, 'info', `🏆 ${p.name} yarışmayı kazandı!`);
-                            showToast(`${p.name} yarışmayı kazandı!`, 'success');
-                        }
-                        await saveSession(session);
-                        render();
-                    }
-                }
-            });
-        });
+    // Action buttons
+    container.querySelectorAll('.action-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const actionType = btn.dataset.action;
+        const skill = parseInt(document.getElementById('action-skill')?.value || '0');
+        const difficulty = parseInt(document.getElementById('action-difficulty')?.value || '0');
+        const char = getActiveChar();
 
-        // Obstacle (challenge)
-        container.querySelectorAll('.obstacle-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                if (session.scene) {
-                    const idx = parseInt(btn.dataset.index);
-                    const obstacle = session.scene.obstacles[idx];
-                    if (obstacle) {
-                        const skill = parseInt(document.getElementById('action-skill')?.value || '0');
-                        const dice = rollFateDice();
-                        const result = calculateResult(dice, skill);
-                        const out = getOutcome(result, obstacle.difficulty);
-                        const disp = getOutcomeDisplay(out.outcome);
+        const dice = rollFateDice();
+        const result = calculateResult(dice, skill);
+        const out = getOutcome(result, difficulty);
+        const disp = getOutcomeDisplay(out.outcome);
 
-                        obstacle.resolved = out.outcome !== 'fail';
-                        obstacle.result = out.outcome;
-                        logAction(session.scene, 'roll',
-                            `${getActiveChar()?.name || 'Oyuncu'} engeli çözmeye çalıştı: ${obstacle.description} → ${disp.emoji} ${disp.label} (${result >= 0 ? '+' : ''}${result} vs +${obstacle.difficulty})`
-                        );
-                        await saveSession(session);
-                        showToast(`${disp.emoji} ${disp.label}`, out.outcome === 'fail' ? 'error' : 'success');
-                        render();
-                    }
-                }
-            });
-        });
+        const actionLabels = { overcome: 'Overcome', advantage: 'Create Advantage', attack: 'Attack', defend: 'Defend' };
+        const msg = `${char?.name || 'Oyuncu'} → ${actionLabels[actionType]}: [${dice.map(getDieSymbol).join(' ')}] ${result >= 0 ? '+' : ''}${result} vs +${difficulty} → ${disp.emoji} ${disp.label} (${out.shifts >= 0 ? '+' : ''}${out.shifts} shift)`;
 
-        // Situation aspects
-        document.getElementById('add-aspect-btn')?.addEventListener('click', async () => {
-            const input = document.getElementById('new-aspect-input');
-            if (input?.value.trim() && session.scene) {
-                addSituationAspect(session.scene, input.value.trim());
-                await saveSession(session);
-                render();
-            }
-        });
-        container.querySelectorAll('.remove-aspect-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                if (session.scene) {
-                    removeSituationAspect(session.scene, parseInt(btn.dataset.index));
-                    await saveSession(session);
-                    render();
-                }
-            });
-        });
+        if (session.scene) {
+          logAction(session.scene, actionType === 'attack' ? 'attack' : actionType === 'defend' ? 'defend' : actionType === 'advantage' ? 'advantage' : 'roll', msg);
+          await saveSession(session);
+        }
 
-        // Action buttons
-        container.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const actionType = btn.dataset.action;
-                const skill = parseInt(document.getElementById('action-skill')?.value || '0');
-                const difficulty = parseInt(document.getElementById('action-difficulty')?.value || '0');
-                const char = getActiveChar();
+        showToast(`${disp.emoji} ${disp.label}: ${result >= 0 ? '+' : ''}${result}`, out.outcome === 'fail' ? 'error' : 'success');
+        render();
+      });
+    });
+  }
 
-                const dice = rollFateDice();
-                const result = calculateResult(dice, skill);
-                const out = getOutcome(result, difficulty);
-                const disp = getOutcomeDisplay(out.outcome);
-
-                const actionLabels = { overcome: 'Overcome', advantage: 'Create Advantage', attack: 'Attack', defend: 'Defend' };
-                const msg = `${char?.name || 'Oyuncu'} → ${actionLabels[actionType]}: [${dice.map(getDieSymbol).join(' ')}] ${result >= 0 ? '+' : ''}${result} vs +${difficulty} → ${disp.emoji} ${disp.label} (${out.shifts >= 0 ? '+' : ''}${out.shifts} shift)`;
-
-                if (session.scene) {
-                    logAction(session.scene, actionType === 'attack' ? 'attack' : actionType === 'defend' ? 'defend' : actionType === 'advantage' ? 'advantage' : 'roll', msg);
-                    await saveSession(session);
-                }
-
-                showToast(`${disp.emoji} ${disp.label}: ${result >= 0 ? '+' : ''}${result}`, out.outcome === 'fail' ? 'error' : 'success');
-                render();
-            });
-        });
-    }
-
-    render();
+  render();
 }

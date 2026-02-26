@@ -3,16 +3,17 @@
 // ═══════════════════════════════════════
 
 import { createCharacter, updateStressLimits } from '../engine/character.js';
-import { SKILL_LIST, SKILL_TRANSLATIONS, PYRAMID_STRUCTURE, validateSkillPyramid, getRatingLabel } from '../engine/skills.js';
+import { SKILL_LIST, getSkillTranslation, PYRAMID_STRUCTURE, validateSkillPyramid, getRatingLabel } from '../engine/skills.js';
+import { t } from '../engine/i18n.js';
 import { saveCharacter } from '../engine/storage.js';
 import { showToast } from '../components/toast.js';
 
 const STEPS = [
-  { id: 'basics', label: 'Temel' },
-  { id: 'aspects', label: 'Aspect' },
-  { id: 'skills', label: 'Yetenekler' },
-  { id: 'stunts', label: 'Stunt' },
-  { id: 'summary', label: 'Özet' },
+  { id: 'basics', labelKey: 'creator.step.basics' },
+  { id: 'aspects', labelKey: 'creator.step.aspects' },
+  { id: 'skills', labelKey: 'creator.step.skills' },
+  { id: 'stunts', labelKey: 'creator.step.stunts' },
+  { id: 'summary', labelKey: 'creator.step.summary' },
 ];
 
 export function renderCharacterCreatorPage(container, navigate) {
@@ -26,7 +27,7 @@ export function renderCharacterCreatorPage(container, navigate) {
           ${i > 0 ? `<div class="wizard-connector ${i <= currentStep ? 'completed' : ''}"></div>` : ''}
           <div class="wizard-step ${i === currentStep ? 'active' : ''} ${i < currentStep ? 'completed' : ''}">
             <div class="step-circle">${i < currentStep ? '✓' : i + 1}</div>
-            <span class="step-label">${step.label}</span>
+            <span class="step-label">${t(step.labelKey)}</span>
           </div>
         `).join('')}
       </div>
@@ -38,14 +39,14 @@ export function renderCharacterCreatorPage(container, navigate) {
       case 'basics':
         return `
           <div class="card animate-in">
-            <h3 style="margin-bottom: var(--sp-lg); font-family: var(--font-display);">Karakter Temelleri</h3>
+            <h3 style="margin-bottom: var(--sp-lg); font-family: var(--font-display);">${t('creator.basics.title')}</h3>
             <div style="margin-bottom: var(--sp-lg);">
-              <label class="label">Karakter Adı</label>
-              <input class="input" id="char-name" value="${character.name}" placeholder="Karakterinizin adını girin..." />
+              <label class="label">${t('creator.basics.name')}</label>
+              <input class="input" id="char-name" value="${character.name}" placeholder="${t('creator.basics.name_ph')}" />
             </div>
             <div>
-              <label class="label">Notlar (opsiyonel)</label>
-              <textarea class="textarea" id="char-notes" placeholder="Arka plan, görünüş, kişilik...">${character.notes}</textarea>
+              <label class="label">${t('creator.basics.notes')}</label>
+              <textarea class="textarea" id="char-notes" placeholder="${t('creator.basics.notes_ph')}">${character.notes}</textarea>
             </div>
           </div>
         `;
@@ -53,26 +54,26 @@ export function renderCharacterCreatorPage(container, navigate) {
       case 'aspects':
         return `
           <div class="card animate-in">
-            <h3 style="margin-bottom: var(--sp-sm); font-family: var(--font-display);">Aspect'ler</h3>
+            <h3 style="margin-bottom: var(--sp-sm); font-family: var(--font-display);">${t('creator.aspects.title')}</h3>
             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: var(--sp-lg);">
-              Karakterinizi tanımlayan 6 ifade. Invoke ve Compel mekanikleri ile oyunu etkiler.
+              ${t('creator.aspects.desc')}
             </p>
             ${[
-            { key: 'highConcept', label: 'High Concept', hint: 'Karakterinizin özü nedir?', type: 'high-concept' },
-            { key: 'trouble', label: 'Trouble', hint: 'Tekrarlayan sorun veya zayıflık', type: 'trouble' },
-            { key: 'relationship', label: 'Relationship', hint: 'Önemli bir ilişki veya bağ', type: 'relationship' },
-            { key: 'free1', label: 'Serbest Aspect 1', hint: 'Ekstra bir özellik veya geçmiş', type: 'free' },
-            { key: 'free2', label: 'Serbest Aspect 2', hint: 'Başka bir önemli detay', type: 'free' },
-            { key: 'free3', label: 'Serbest Aspect 3', hint: 'Son dokunuşlar', type: 'free' },
+            { key: 'highConcept', labelKey: 'aspect.highConcept', hintKey: 'aspect.highConcept.hint', type: 'high-concept' },
+            { key: 'trouble', labelKey: 'aspect.trouble', hintKey: 'aspect.trouble.hint', type: 'trouble' },
+            { key: 'relationship', labelKey: 'aspect.relationship', hintKey: 'aspect.relationship.hint', type: 'relationship' },
+            { key: 'free1', labelKey: 'aspect.free1', hintKey: 'aspect.free.hint', type: 'free' },
+            { key: 'free2', labelKey: 'aspect.free2', hintKey: 'aspect.free2.hint', type: 'free' },
+            { key: 'free3', labelKey: 'aspect.free3', hintKey: 'aspect.free3.hint', type: 'free' },
           ].map(a => `
               <div class="aspect-input-group" style="margin-bottom: var(--sp-md);">
                 <label class="label">
                   <span class="aspect-dot aspect-dot-${a.type}"></span>
-                  ${a.label}
+                  ${t(a.labelKey)}
                 </label>
                 <input class="input aspect-field" data-key="${a.key}" 
                   value="${character.aspects[a.key]}" 
-                  placeholder="${a.hint}" />
+                  placeholder="${t(a.hintKey)}" />
               </div>
             `).join('')}
           </div>
@@ -81,15 +82,15 @@ export function renderCharacterCreatorPage(container, navigate) {
       case 'skills':
         return `
           <div class="card animate-in">
-            <h3 style="margin-bottom: var(--sp-sm); font-family: var(--font-display);">Yetenek Piramidi</h3>
+            <h3 style="margin-bottom: var(--sp-sm); font-family: var(--font-display);">${t('creator.skills.title')}</h3>
             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: var(--sp-lg);">
-              1×Great(+4), 2×Good(+3), 3×Fair(+2), 4×Average(+1). Diğerleri Mediocre(+0).
+              ${t('creator.skills.desc')}
             </p>
             ${PYRAMID_STRUCTURE.map(level => `
               <div style="margin-bottom: var(--sp-lg);">
                 <div style="display: flex; align-items: center; gap: var(--sp-sm); margin-bottom: var(--sp-sm);">
                   <span class="badge badge-gold">+${level.rating}</span>
-                  <span style="font-weight: 600; font-size: 0.85rem;">${level.label} — ${level.count} yetenek</span>
+                  <span style="font-weight: 600; font-size: 0.85rem;">${level.label} — ${level.count} ${t('creator.skills.count')}</span>
                 </div>
                 <div class="skill-row" style="flex-wrap: wrap; justify-content: flex-start;">
                   ${Array.from({ length: level.count }, (_, idx) => {
@@ -100,12 +101,12 @@ export function renderCharacterCreatorPage(container, navigate) {
           return `
                       <select class="select skill-select" data-rating="${level.rating}" data-index="${idx}"
                               style="min-width: 180px; max-width: 220px;">
-                        <option value="">Seçin...</option>
+                        <option value="">${t('creator.skills.select')}</option>
                         ${SKILL_LIST.map(s => `
                           <option value="${s}" 
                             ${s === current ? 'selected' : ''}
                             ${character.skills[s] > 0 && s !== current ? 'disabled' : ''}>
-                            ${SKILL_TRANSLATIONS[s]}
+                            ${getSkillTranslation(s)}
                           </option>
                         `).join('')}
                       </select>
@@ -121,23 +122,22 @@ export function renderCharacterCreatorPage(container, navigate) {
       case 'stunts':
         return `
           <div class="card animate-in">
-            <h3 style="margin-bottom: var(--sp-sm); font-family: var(--font-display);">Stunt'lar</h3>
+            <h3 style="margin-bottom: var(--sp-sm); font-family: var(--font-display);">${t('creator.stunts.title')}</h3>
             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: var(--sp-lg);">
-              3 ücretsiz stunt. Ek stunt'lar Refresh'i düşürür (min 1).
-              Örnek: "Bir yeteneği belirli bir durumda +2 bonus ile kullan."
+              ${t('creator.stunts.desc')}
             </p>
             <div id="stunts-list">
               ${character.stunts.map((s, i) => `
                 <div class="stunt-entry" style="margin-bottom: var(--sp-md); display: flex; gap: var(--sp-sm); align-items: flex-start;">
                   <div style="flex: 1;">
-                    <input class="input stunt-name" data-index="${i}" placeholder="Stunt adı" value="${s.name}" style="margin-bottom: var(--sp-xs);" />
-                    <textarea class="textarea stunt-desc" data-index="${i}" placeholder="Açıklama: Ne yapar?">${s.description}</textarea>
+                    <input class="input stunt-name" data-index="${i}" placeholder="${t('creator.stunts.name_ph')}" value="${s.name}" style="margin-bottom: var(--sp-xs);" />
+                    <textarea class="textarea stunt-desc" data-index="${i}" placeholder="${t('creator.stunts.desc_ph')}">${s.description}</textarea>
                   </div>
                   <button class="btn btn-danger btn-sm remove-stunt" data-index="${i}">✕</button>
                 </div>
               `).join('')}
             </div>
-            <button class="btn btn-outline" id="add-stunt-btn" style="margin-top: var(--sp-sm);">+ Stunt Ekle</button>
+            <button class="btn btn-outline" id="add-stunt-btn" style="margin-top: var(--sp-sm);">${t('creator.stunts.add')}</button>
             <div style="margin-top: var(--sp-md); padding: var(--sp-md); background: rgba(240,165,0,0.05); border-radius: var(--radius-md);">
               <span style="font-weight: 700; color: var(--gold);">Refresh: ${character.refresh}</span>
               <span style="color: var(--text-muted); margin-left: var(--sp-sm); font-size: 0.85rem;">
@@ -151,25 +151,25 @@ export function renderCharacterCreatorPage(container, navigate) {
         const validation = validateSkillPyramid(character.skills);
         return `
           <div class="card animate-in">
-            <h3 style="margin-bottom: var(--sp-lg); font-family: var(--font-display);">Karakter Özeti</h3>
+            <h3 style="margin-bottom: var(--sp-lg); font-family: var(--font-display);">${t('creator.summary.title')}</h3>
             
             <div style="margin-bottom: var(--sp-lg);">
               <h4 style="color: var(--gold); font-size: 1.5rem; margin-bottom: var(--sp-xs); font-family: var(--font-display);">
-                ${character.name || 'İsimsiz Karakter'}
+                ${character.name || t('creator.summary.unnamed')}
               </h4>
             </div>
 
             <div style="margin-bottom: var(--sp-lg);">
-              <span class="label">Aspect'ler</span>
+              <span class="label">${t('char.aspects')}</span>
               <div style="display: flex; flex-direction: column; gap: var(--sp-sm);">
                 ${Object.entries(character.aspects)
             .filter(([, v]) => v)
             .map(([k, v]) => {
               const types = { highConcept: 'high-concept', trouble: 'trouble', relationship: 'relationship', free1: 'free', free2: 'free', free3: 'free' };
-              const labels = { highConcept: 'High Concept', trouble: 'Trouble', relationship: 'Relationship', free1: 'Serbest 1', free2: 'Serbest 2', free3: 'Serbest 3' };
+              const labels = { highConcept: 'aspect.highConcept', trouble: 'aspect.trouble', relationship: 'aspect.relationship', free1: 'aspect.free1', free2: 'aspect.free2', free3: 'aspect.free3' };
               return `
                       <div class="aspect-card ${types[k]}">
-                        <div class="aspect-type">${labels[k]}</div>
+                        <div class="aspect-type">${t(labels[k])}</div>
                         <div class="aspect-text">${v}</div>
                       </div>
                     `;
@@ -178,10 +178,10 @@ export function renderCharacterCreatorPage(container, navigate) {
             </div>
 
             <div style="margin-bottom: var(--sp-lg);">
-              <span class="label">Yetenekler</span>
+              <span class="label">${t('char.skills')}</span>
               ${!validation.valid ? `
                 <div style="color: var(--danger); font-size: 0.85rem; margin-bottom: var(--sp-sm);">
-                  ⚠ Piramit tamamlanmadı: ${validation.errors.join(', ')}
+                  ${t('creator.summary.incomplete')} ${validation.errors.join(', ')}
                 </div>
               ` : ''}
               <div class="skill-pyramid">
@@ -192,7 +192,7 @@ export function renderCharacterCreatorPage(container, navigate) {
                       ${skills.map(s => `
                         <div class="skill-slot">
                           <span class="skill-rating">+${level.rating}</span>
-                          <span class="skill-name">${SKILL_TRANSLATIONS[s]}</span>
+                          <span class="skill-name">${getSkillTranslation(s)}</span>
                         </div>
                       `).join('')}
                     </div>
@@ -203,7 +203,7 @@ export function renderCharacterCreatorPage(container, navigate) {
 
             ${character.stunts.length > 0 ? `
               <div style="margin-bottom: var(--sp-lg);">
-                <span class="label">Stunt'lar (${character.stunts.length})</span>
+                <span class="label">${t('char.stunts')} (${character.stunts.length})</span>
                 ${character.stunts.map(s => `
                   <div style="padding: var(--sp-sm) var(--sp-md); background: rgba(124,58,237,0.05); border-radius: var(--radius-sm); margin-bottom: var(--sp-xs);">
                     <strong style="color: var(--purple-300);">${s.name}</strong>
@@ -226,19 +226,19 @@ export function renderCharacterCreatorPage(container, navigate) {
     container.innerHTML = `
       <div class="creator-page">
         <div class="section-header animate-in">
-          <h2>✦ Karakter Oluştur</h2>
-          <p>Adım adım karakterinizi yaratın</p>
+          <h2>${t('creator.title')}</h2>
+          <p>${t('creator.subtitle')}</p>
         </div>
         ${renderWizardProgress()}
         ${renderStepContent()}
         <div class="wizard-buttons" style="display: flex; justify-content: space-between; margin-top: var(--sp-xl);">
           <button class="btn btn-outline" id="prev-btn" ${currentStep === 0 ? 'disabled style="opacity:0.3;pointer-events:none;"' : ''}>
-            ← Geri
+            ← ${t('btn.back')}
           </button>
           ${currentStep < STEPS.length - 1 ? `
-            <button class="btn btn-gold" id="next-btn">İleri →</button>
+            <button class="btn btn-gold" id="next-btn">${t('btn.next')} →</button>
           ` : `
-            <button class="btn btn-gold btn-lg" id="save-btn">💾 Karakteri Kaydet</button>
+            <button class="btn btn-gold btn-lg" id="save-btn">💾 ${t('btn.save')}</button>
           `}
         </div>
       </div>
@@ -272,16 +272,16 @@ export function renderCharacterCreatorPage(container, navigate) {
     document.getElementById('save-btn')?.addEventListener('click', async () => {
       collectCurrentStepData();
       if (!character.name.trim()) {
-        showToast('Karakter adı gerekli!', 'error');
+        showToast(t('toast.error'), 'error');
         return;
       }
       updateStressLimits(character);
       const success = await saveCharacter(character);
       if (!success) {
-        showToast('Karakter kaydedilirken sunucu hatası oluştu!', 'error');
+        showToast(t('toast.error'), 'error');
         return;
       }
-      showToast(`"${character.name}" kaydedildi!`, 'success');
+      showToast(t('toast.saved'), 'success');
       navigate('character-sheet', { id: character.id });
     });
 

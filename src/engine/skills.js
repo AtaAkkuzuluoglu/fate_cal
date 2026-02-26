@@ -2,6 +2,8 @@
 // Skills — Fate Condensed Skill List & Pyramid
 // ═══════════════════════════════════════
 
+import { t } from './i18n.js';
+
 export const SKILL_LIST = [
     'Athletics', 'Burglary', 'Contacts', 'Crafts', 'Deceive',
     'Drive', 'Empathy', 'Fight', 'Investigate', 'Lore',
@@ -9,26 +11,11 @@ export const SKILL_LIST = [
     'Shoot', 'Stealth', 'Will'
 ];
 
-export const SKILL_TRANSLATIONS = {
-    'Athletics': 'Atletizm',
-    'Burglary': 'Hırsızlık',
-    'Contacts': 'Bağlantılar',
-    'Crafts': 'Zanaat',
-    'Deceive': 'Aldatma',
-    'Drive': 'Sürüş',
-    'Empathy': 'Empati',
-    'Fight': 'Dövüş',
-    'Investigate': 'Araştırma',
-    'Lore': 'Bilgi',
-    'Notice': 'Farkındalık',
-    'Physique': 'Fizik',
-    'Provoke': 'Tahrik',
-    'Rapport': 'İlişki',
-    'Resources': 'Kaynaklar',
-    'Shoot': 'Atıcılık',
-    'Stealth': 'Gizlilik',
-    'Will': 'İrade'
-};
+export function getSkillTranslation(skill) {
+    return t(`skill.${skill.toLowerCase()}`);
+}
+
+// Removed hardcoded SKILL_TRANSLATIONS
 
 /**
  * Standard Fate Condensed Pyramid:
@@ -76,12 +63,7 @@ export function validateSkillPyramid(skills) {
  * Get rating label
  */
 export function getRatingLabel(rating) {
-    const labels = {
-        0: 'Mediocre', 1: 'Average', 2: 'Fair',
-        3: 'Good', 4: 'Great', 5: 'Superb',
-        6: 'Fantastic', 7: 'Epic', 8: 'Legendary'
-    };
-    return labels[rating] || `+${rating}`;
+    return t(`dice.ladder.${rating}`) || `+${rating}`;
 }
 
 /**

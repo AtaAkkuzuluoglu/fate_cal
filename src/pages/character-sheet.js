@@ -2,25 +2,27 @@
 // Character Sheet — View & manage
 // ═══════════════════════════════════════
 
-import { toggleStress, setConsequence, clearStress } from '../engine/character.js';
+import { toggleStress, setConsequence, clearStress, updateStressLimits } from '../engine/character.js';
 import { invoke, compel, earnFP, spendFP, refreshPoints } from '../engine/fate-points.js';
-import { SKILL_TRANSLATIONS, PYRAMID_STRUCTURE } from '../engine/skills.js';
-import { rollFateDice, calculateResult, getOutcome, getLadderLabel, getDieSymbol, getDieClass, getOutcomeDisplay } from '../engine/dice.js';
+import { SKILL_LIST, getSkillTranslation, PYRAMID_STRUCTURE, getRatingLabel } from '../engine/skills.js';
+import { runRoll } from '../engine/dice.js';
+import { t } from '../engine/i18n.js';
+import { calculateResult, getOutcome, getLadderLabel, getDieSymbol, getDieClass, getOutcomeDisplay } from '../engine/dice.js';
 import { getCharacter, saveCharacter, deleteCharacter } from '../engine/storage.js';
 import { showToast } from '../components/toast.js';
 
 export async function renderCharacterSheetPage(container, navigate, params = {}) {
-  container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Yükleniyor...</p></div>`;
+  container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>${t('loading')}</p></div>`;
   let character;
   try {
     character = await getCharacter(params.id);
-    if (!character) throw new Error("Karakter bulunamadı");
+    if (!character) throw new Error(t('error.character_not_found'));
   } catch (err) {
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">${err.message.includes('bulunamadı') ? '✦' : '⚠'}</div>
         <p>${err.message}</p>
-        <button class="btn btn-gold" id="back-home" style="margin-top: 1rem;">Ana Sayfaya Dön</button>
+        <button class="btn btn-gold" id="back-home" style="margin-top: 1rem;">${t('home.back_to_home')}</button>
       </div>
     `;
     container.querySelector('#back-home')?.addEventListener('click', () => navigate('home'));
@@ -44,13 +46,17 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
               <p style="color: var(--text-secondary); font-style: italic; margin-bottom: var(--sp-xs);">"${character.aspects.highConcept}"</p>
             ` : ''}
             <div style="font-size: 0.8rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: var(--sp-sm); background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: var(--radius-sm); border: 1px dashed var(--border-light);">
-              <span>Serüven Kodu: </span>
+              <span>${t('sheet.adventure_code')}: </span>
               <code style="color: var(--gold); user-select: all;" id="char-code">${character.id}</code>
             </div>
           </div>
           <div style="display: flex; gap: var(--sp-sm);">
-            <button class="btn btn-outline btn-sm" id="edit-btn">✎ Düzenle</button>
-            <button class="btn btn-danger btn-sm" id="delete-btn">🗑 Sil</button>
+            <button class="btn btn-outline btn-sm" id="edit-btn">
+          ${t('sheet.edit')}
+        </button>
+        <button class="btn btn-danger btn-sm" id="delete-btn">
+          ${t('sheet.delete')}
+        </button>
           </div>
         </div>
 
@@ -60,8 +66,8 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
             <!-- Fate Points -->
             <div class="card card-gold animate-in animate-in-delay-1" style="margin-bottom: var(--sp-lg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-md);">
-                <h3 style="font-family: var(--font-display);">Fate Points</h3>
-                <span class="badge badge-gold">Refresh: ${character.refresh}</span>
+                <h3 style="font-family: var(--font-display);">${t('char.fate_points')}</h3>
+                <span class="badge badge-gold">${t('sheet.refresh_label', { refresh: character.refresh })}</span>
               </div>
               <div class="fp-counter" style="justify-content: center;">
                 <button class="fp-btn" id="fp-minus">−</button>
@@ -69,38 +75,47 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
                 <button class="fp-btn" id="fp-plus">+</button>
               </div>
               <div style="margin-top: var(--sp-md);">
-                <button class="btn btn-sm btn-outline" id="fp-refresh" style="width: 100%;">🔄 Refresh (${character.refresh})</button>
+                <button class="btn btn-sm btn-outline" id="fp-refresh" style="width: 100%;">🔄 ${t('sheet.refresh_button', { refresh: character.refresh })}</button>
               </div>
             </div>
 
             <!-- Aspects -->
             <div class="card animate-in animate-in-delay-2" style="margin-bottom: var(--sp-lg);">
-              <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">Aspect'ler</h3>
-              <div style="display: flex; flex-direction: column; gap: var(--sp-sm);">
-                ${Object.entries(character.aspects)
+              <h3 style="font-family: var(--font-display); color: var(--gold); border-bottom: 2px solid var(--border-color); padding-bottom: var(--sp-sm); margin-bottom: var(--sp-md);">
+            ${t('char.aspects')}
+          </h3>
+          <div style="display: flex; flex-direction: column; gap: var(--sp-sm);">
+            ${Object.entries(character.aspects)
         .filter(([, v]) => v)
         .map(([k, v]) => {
           const types = { highConcept: 'high-concept', trouble: 'trouble', relationship: 'relationship', free1: 'free', free2: 'free', free3: 'free' };
-          const labels = { highConcept: 'High Concept', trouble: 'Trouble', relationship: 'Relationship', free1: 'Serbest 1', free2: 'Serbest 2', free3: 'Serbest 3' };
+          const labels = { highConcept: 'aspect.highConcept', trouble: 'aspect.trouble', relationship: 'aspect.relationship', free1: 'aspect.free1', free2: 'aspect.free2', free3: 'aspect.free3' };
           return `
-                      <div class="aspect-card ${types[k]}">
-                        <div class="aspect-type">${labels[k]}</div>
-                        <div class="aspect-text">${v}</div>
-                      </div>
-                    `;
+                  <div class="aspect-card ${types[k]}">
+                    <div class="aspect-type">${t(labels[k])}</div>
+                    <div class="aspect-text">${v}</div>
+                  </div>
+                `;
         }).join('')}
               </div>
             </div>
 
             <!-- Stunts -->
             <div class="card animate-in animate-in-delay-3" style="margin-bottom: var(--sp-lg);">
-              <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">Stunt'lar</h3>
-              ${character.stunts.length > 0 ? character.stunts.map(s => `
+              <h3 style="font-family: var(--font-display); color: var(--gold); border-bottom: 2px solid var(--border-color); padding-bottom: var(--sp-sm); margin-bottom: var(--sp-md);">
+            ${t('char.stunts')}
+          </h3>
+          <div style="display: flex; flex-direction: column; gap: var(--sp-sm);">
+            ${character.stunts.length > 0
+        ? character.stunts.map(s => `
                 <div style="padding: var(--sp-sm) var(--sp-md); background: rgba(124,58,237,0.05); border-radius: var(--radius-sm); margin-bottom: var(--sp-sm); border-left: 3px solid var(--purple);">
                   <strong style="color: var(--purple-300);">${s.name}</strong>
                   <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 2px;">${s.description}</p>
                 </div>
-              `).join('') : '<p style="color: var(--text-muted);">Stunt eklenmemiş</p>'}
+              `).join('')
+        : `<p style="color: var(--text-muted);">${t('sheet.no_stunts')}</p>`
+      }
+          </div>
             </div>
           </div>
 
@@ -108,18 +123,20 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
           <div>
             <!-- Quick Roll -->
             <div class="card animate-in animate-in-delay-1" style="margin-bottom: var(--sp-lg);">
-              <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">Hızlı Zar</h3>
+              <h3 style="font-family: var(--font-display); color: var(--gold); border-bottom: 2px solid var(--border-color); padding-bottom: var(--sp-sm); margin-bottom: var(--sp-md);">
+            ${t('sheet.quick_roll')}
+          </h3>
               <div style="display: flex; gap: var(--sp-sm); margin-bottom: var(--sp-md); flex-wrap: wrap;">
                 <select class="select" id="quick-skill" style="flex: 1; min-width: 140px;">
-                  <option value="0">Yetenek seçin...</option>
+                  <option value="0">${t('sheet.select_skill')}</option>
                   ${Object.entries(character.skills)
         .filter(([, r]) => r > 0)
         .sort(([, a], [, b]) => b - a)
         .map(([s, r]) => `
-                      <option value="${r}">${SKILL_TRANSLATIONS[s]} (+${r})</option>
+                      <option value="${r}">${getSkillTranslation(s)} (+${r})</option>
                     `).join('')}
                 </select>
-                <button class="btn btn-gold" id="quick-roll-btn">🎲 At</button>
+                <button class="btn btn-gold" id="quick-roll-btn">🎲 ${t('sheet.roll_button')}</button>
               </div>
               ${lastRoll ? (() => {
         const disp = getOutcomeDisplay(lastRoll.outcome);
@@ -140,12 +157,12 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
 
             <!-- Stress -->
             <div class="card animate-in animate-in-delay-2" style="margin-bottom: var(--sp-lg);">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-md);">
-                <h3 style="font-family: var(--font-display);">Stress</h3>
-                <button class="btn btn-sm btn-outline" id="clear-stress">Temizle</button>
-              </div>
+              <h3 style="font-family: var(--font-display); color: var(--gold); border-bottom: 2px solid var(--border-color); padding-bottom: var(--sp-sm); margin-bottom: var(--sp-md); display: flex; justify-content: space-between;">
+            ${t('char.stress')}
+            <button class="btn btn-outline btn-sm" id="clear-stress" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">${t('sheet.clear_stress')}</button>
+          </h3>
               <div style="margin-bottom: var(--sp-md);">
-                <span class="label">Fiziksel</span>
+                <span class="label">${t('sheet.physical')}</span>
                 <div class="stress-track">
                   ${character.stress.physical.map((filled, i) => `
                     <div class="stress-box ${filled ? 'filled' : ''}" data-track="physical" data-index="${i}">
@@ -155,7 +172,7 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
                 </div>
               </div>
               <div>
-                <span class="label">Mental</span>
+                <span class="label">${t('sheet.mental')}</span>
                 <div class="stress-track">
                   ${character.stress.mental.map((filled, i) => `
                     <div class="stress-box ${filled ? 'filled' : ''}" data-track="mental" data-index="${i}">
@@ -168,20 +185,24 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
 
             <!-- Consequences -->
             <div class="card animate-in animate-in-delay-3" style="margin-bottom: var(--sp-lg);">
-              <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">Consequences</h3>
-              ${[
-        { key: 'mild', label: 'Mild', shift: 2 },
-        { key: 'moderate', label: 'Moderate', shift: 4 },
-        { key: 'severe', label: 'Severe', shift: 6 },
-        { key: 'permanent', label: 'Permanent', shift: 8 },
+              <h3 style="font-family: var(--font-display); color: var(--gold); border-bottom: 2px solid var(--border-color); padding-bottom: var(--sp-sm); margin-bottom: var(--sp-md);">
+            ${t('char.consequences')}
+          </h3>
+          <div style="display: flex; flex-direction: column; gap: var(--sp-md);">
+            ${[
+        { key: 'mild', label: t('consequence.mild'), shift: 2 },
+        { key: 'moderate', label: t('consequence.moderate'), shift: 4 },
+        { key: 'severe', label: t('consequence.severe'), shift: 6 },
+        { key: 'permanent', label: t('consequence.permanent'), shift: 8 },
       ].map(c => `
                 <div class="consequence-slot consequence-${c.key}" style="margin-bottom: var(--sp-sm);">
                   <div class="shift-badge">${c.shift}</div>
-                  <input class="consequence-input" data-severity="${c.key}" 
-                    value="${character.consequences[c.key] || ''}" 
-                    placeholder="${c.label} (${c.shift} shift)" />
+                  <input class="consequence-input" data-severity="${c.key}"
+                    value="${character.consequences[c.key] || ''}"
+                    placeholder="${c.label} (${c.shift} ${t('sheet.shift_label')})" />
                 </div>
               `).join('')}
+            </div>
             </div>
 
             <!-- Skills -->
@@ -197,7 +218,7 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
                       ${skills.map(s => `
                         <div class="skill-slot">
                           <span class="skill-rating">+${level.rating}</span>
-                          <span class="skill-name">${SKILL_TRANSLATIONS[s]}</span>
+                          <span class="skill-name">${getSkillTranslation(s)}</span>
                         </div>
                       `).join('')}
                     </div>
@@ -210,7 +231,7 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
 
         ${character.notes ? `
           <div class="card animate-in" style="margin-top: var(--sp-lg);">
-            <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-sm);">Notlar</h3>
+            <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-sm);">${t('char.notes')}</h3>
             <p style="color: var(--text-secondary); font-size: 0.9rem; white-space: pre-wrap;">${character.notes}</p>
           </div>
         ` : ''}
@@ -247,7 +268,7 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
     document.getElementById('clear-stress')?.addEventListener('click', async () => {
       clearStress(character);
       await save(); render();
-      showToast('Stress temizlendi', 'info');
+      showToast(t('toast.saved'), 'info');
     });
 
     // Consequences
@@ -255,7 +276,7 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
       input.addEventListener('change', async (e) => {
         setConsequence(character, e.target.dataset.severity, e.target.value);
         await save();
-        showToast('Consequence güncellendi', 'info');
+        showToast(t('toast.saved'), 'info');
       });
     });
 
@@ -276,9 +297,9 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
       navigate('character-creator', { id: character.id });
     });
     document.getElementById('delete-btn')?.addEventListener('click', async () => {
-      if (confirm(`"${character.name}" silinsin mi?`)) {
+      if (confirm(t('sheet.delete') + ` "${character.name}"?`)) {
         await deleteCharacter(character.id);
-        showToast('Karakter silindi', 'info');
+        showToast(t('toast.saved'), 'info');
         navigate('home');
       }
     });

@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════
 
 import { rollFateDice, calculateResult, getOutcome, getLadderLabel, getDieSymbol, getDieClass, getOutcomeDisplay } from '../engine/dice.js';
-import { SKILL_LIST, SKILL_TRANSLATIONS } from '../engine/skills.js';
+import { SKILL_LIST, getSkillTranslation } from '../engine/skills.js';
 import { showToast } from '../components/toast.js';
 
 export function renderDiceRollerPage(container) {
@@ -82,7 +82,7 @@ export function renderDiceRollerPage(container) {
                     <option value="">Yetenek Seçin</option>
                     ${SKILL_LIST.map(s => `
                       <option value="${s}" ${s === selectedSkill ? 'selected' : ''}>
-                        ${SKILL_TRANSLATIONS[s]} (${s})
+                        ${getSkillTranslation(s)} (${s})
                       </option>
                     `).join('')}
                   </select>
@@ -145,7 +145,7 @@ export function renderDiceRollerPage(container) {
                           ${disp.emoji} ${h.result >= 0 ? '+' : ''}${h.result}
                         </span>
                         <span style="margin-left: 8px;">${disp.label}</span>
-                        ${h.skill ? `<span style="margin-left: 8px; color: var(--text-muted);">(${SKILL_TRANSLATIONS[h.skill] || h.skill} +${h.skillRating})</span>` : ''}
+                        ${h.skill ? `<span style="margin-left: 8px; color: var(--text-muted);">(${getSkillTranslation(h.skill) || h.skill} +${h.skillRating})</span>` : ''}
                       </div>
                     `;
       }).join('')}
