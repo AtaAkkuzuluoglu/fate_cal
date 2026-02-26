@@ -30,7 +30,8 @@ export function createCharacter(overrides = {}) {
         consequences: {
             mild: null,      // string or null
             moderate: null,
-            severe: null
+            severe: null,
+            permanent: null
         },
         refresh: 3,
         fatePoints: 3,
@@ -78,7 +79,8 @@ export function isTakenOut(character) {
     const allConsequencesFilled =
         character.consequences.mild !== null &&
         character.consequences.moderate !== null &&
-        character.consequences.severe !== null;
+        character.consequences.severe !== null &&
+        character.consequences.permanent !== null;
     return allStressFilled && allConsequencesFilled;
 }
 

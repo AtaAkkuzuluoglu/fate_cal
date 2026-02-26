@@ -173,6 +173,7 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
         { key: 'mild', label: 'Mild', shift: 2 },
         { key: 'moderate', label: 'Moderate', shift: 4 },
         { key: 'severe', label: 'Severe', shift: 6 },
+        { key: 'permanent', label: 'Permanent', shift: 8 },
       ].map(c => `
                 <div class="consequence-slot consequence-${c.key}" style="margin-bottom: var(--sp-sm);">
                   <div class="shift-badge">${c.shift}</div>
