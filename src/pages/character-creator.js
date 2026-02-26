@@ -103,7 +103,7 @@ export function renderCharacterCreatorPage(container, navigate) {
                         ${SKILL_LIST.map(s => `
                           <option value="${s}" 
                             ${s === current ? 'selected' : ''}
-                            ${character.skills[s] > 0 && character.skills[s] !== level.rating ? 'disabled' : ''}>
+                            ${character.skills[s] > 0 && s !== current ? 'disabled' : ''}>
                             ${SKILL_TRANSLATIONS[s]}
                           </option>
                         `).join('')}

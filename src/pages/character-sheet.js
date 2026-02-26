@@ -64,10 +64,8 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
                 <div class="fp-token">${character.fatePoints}</div>
                 <button class="fp-btn" id="fp-plus">+</button>
               </div>
-              <div style="display: flex; gap: var(--sp-sm); margin-top: var(--sp-md); justify-content: center;">
-                <button class="btn btn-sm btn-outline" id="fp-invoke">⚡ Invoke</button>
-                <button class="btn btn-sm btn-outline" id="fp-compel">💥 Compel</button>
-                <button class="btn btn-sm btn-outline" id="fp-refresh">🔄 Refresh</button>
+              <div style="margin-top: var(--sp-md);">
+                <button class="btn btn-sm btn-outline" id="fp-refresh" style="width: 100%;">🔄 Refresh (${character.refresh})</button>
               </div>
             </div>
 
@@ -226,17 +224,6 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
     });
     document.getElementById('fp-plus')?.addEventListener('click', async () => {
       const res = earnFP(character);
-      await save(); render(); showToast(res.message, 'success');
-    });
-    document.getElementById('fp-invoke')?.addEventListener('click', async () => {
-      const aspect = character.aspects.highConcept || 'Aspect';
-      const res = invoke(character, aspect);
-      if (res.success) { await save(); render(); showToast(res.message, 'info'); }
-      else showToast(res.message, 'error');
-    });
-    document.getElementById('fp-compel')?.addEventListener('click', async () => {
-      const aspect = character.aspects.trouble || 'Trouble';
-      const res = compel(character, aspect);
       await save(); render(); showToast(res.message, 'success');
     });
     document.getElementById('fp-refresh')?.addEventListener('click', async () => {
