@@ -46,7 +46,7 @@ export function renderDiceRollerPage(container) {
         const display = getOutcomeDisplay(out.outcome);
         return `
                   <div class="roll-result">
-                    <div class="result-total" style="font-size: 2.5rem; font-weight: 900; color: ${display.color}; margin-bottom: var(--sp-sm);">
+                    <div class="result-total" style="font-size: 2.5rem; font-weight: 900; color: ${result > 0 ? 'var(--success)' : result < 0 ? 'var(--danger)' : 'var(--warning)'}; margin-bottom: var(--sp-sm);">
                       ${display.emoji} ${result >= 0 ? '+' : ''}${result}
                     </div>
                     <div class="result-ladder" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: var(--sp-sm);">
@@ -115,15 +115,20 @@ export function renderDiceRollerPage(container) {
             <div class="card" style="margin-bottom: var(--sp-lg);">
               <h3 style="margin-bottom: var(--sp-md); font-family: var(--font-display);">Merdiven</h3>
               <div style="display: flex; flex-direction: column; gap: 4px;">
-                ${[8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4].map(v => `
+                ${[8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4].map(v => {
+        let vColor = 'var(--warning)'; // 0
+        if (v > 0) vColor = 'var(--success)';
+        if (v < 0) vColor = 'var(--danger)';
+        return `
                   <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-radius: 4px;
-                    background: ${currentDice && calculateResult(currentDice, skillRating, bonus) === v ? 'rgba(240,165,0,0.1)' : 'transparent'};">
-                    <span class="ladder-label" data-value="${v}" style="font-size: 0.8rem;">
+                    background: ${currentDice && calculateResult(currentDice, skillRating, bonus) === v ? (v > 0 ? 'rgba(76,175,80,0.1)' : v < 0 ? 'rgba(244,67,54,0.1)' : 'rgba(240,165,0,0.1)') : 'transparent'};">
+                    <span class="ladder-label" data-value="${v}" style="font-size: 0.8rem; color: ${vColor}; font-weight: bold;">
                       ${v >= 0 ? '+' : ''}${v}
                     </span>
                     <span style="font-size: 0.8rem; color: var(--text-muted);">${getLadderLabel(v)}</span>
                   </div>
-                `).join('')}
+                `;
+      }).join('')}
               </div>
             </div>
 
