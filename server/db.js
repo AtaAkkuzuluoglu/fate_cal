@@ -1,112 +1,96 @@
 // ═══════════════════════════════════════
-// Database — sql.js (Pure JS SQLite for Vercel)
+// Database — Vercel Postgres
 // ═══════════════════════════════════════
 
-const initSqlJs = require('sql.js');
-const fs = require('fs');
-const path = require('path');
+const { createPool } = require('@vercel/postgres');
 
-const DB_PATH = process.env.VERCEL
-    ? '/tmp/fate.db'
-    : path.join(__dirname, 'fate.db');
-
-let db = null;
+let pool = null;
 
 async function getDb() {
-    if (db) return db;
-
-    const SQL = await initSqlJs({
-        locateFile: file => path.join(__dirname, '..', 'node_modules', 'sql.js', 'dist', file)
-    });
-
-    // Try to load existing database
-    try {
-        if (fs.existsSync(DB_PATH)) {
-            const buffer = fs.readFileSync(DB_PATH);
-            db = new SQL.Database(buffer);
-        } else {
-            db = new SQL.Database();
+    if (!pool) {
+        if (!process.env.POSTGRES_URL) {
+            console.warn('POSTGRES_URL is not set. The database connection will fail.');
         }
-    } catch {
-        db = new SQL.Database();
+        pool = createPool({
+            connectionString: process.env.POSTGRES_URL
+        });
+
+        // Initialize tables on first connection
+        try {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    username VARCHAR(255) UNIQUE NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            `);
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS characters (
+                    id VARCHAR(255) PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    data TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            `);
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS sessions (
+                    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                    data TEXT NOT NULL,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            `);
+            console.log('Postgres tables initialized successfully.');
+        } catch (err) {
+            console.error('Failed to initialize Postgres tables:', err);
+        }
     }
-
-    // Create tables
-    db.run(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL COLLATE NOCASE,
-        password TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
-      CREATE TABLE IF NOT EXISTS characters (
-        id TEXT PRIMARY KEY,
-        user_id INTEGER NOT NULL,
-        data TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      );
-      CREATE TABLE IF NOT EXISTS sessions (
-        user_id INTEGER PRIMARY KEY,
-        data TEXT NOT NULL,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      );
-    `);
-
-    saveDb();
-    return db;
+    return pool;
 }
 
-function saveDb() {
-    if (!db) return;
-    try {
-        const data = db.export();
-        const buffer = Buffer.from(data);
-        fs.writeFileSync(DB_PATH, buffer);
-    } catch (err) {
-        console.error('DB save error:', err);
-    }
+/**
+ * Converts SQLite '?' parameters to Postgres '$1, $2...' format.
+ */
+function toPgQuery(sql) {
+    let index = 1;
+    return sql.replace(/\?/g, () => '$' + index++);
 }
 
-// ── Query Helpers ──
+// ── Query Helpers (Mocking sql.js for backward compatibility) ──
 
 async function run(sql, params = []) {
-    const d = await getDb();
-    d.run(sql, params);
-    saveDb();
-    return { lastInsertRowid: d.exec("SELECT last_insert_rowid()")[0]?.values[0][0], changes: d.getRowsModified() };
+    const p = await getDb();
+    const pgSql = toPgQuery(sql);
+    const result = await p.query(pgSql, params);
+
+    // Postgres doesn't return lastInsertRowid automatically unless RETURNING id is used.
+    // If returning is used, result.rows[0] might contain the id.
+    const lastRowId = result.rows && result.rows.length > 0 ? (result.rows[0].id || result.rows[0][Object.keys(result.rows[0])[0]]) : null;
+
+    return {
+        lastInsertRowid: lastRowId,
+        changes: result.rowCount
+    };
 }
 
 async function get(sql, params = []) {
-    const d = await getDb();
-    const stmt = d.prepare(sql);
-    stmt.bind(params);
-    let row = null;
-    if (stmt.step()) {
-        row = stmt.getAsObject();
-    }
-    stmt.free();
-    return row;
+    const p = await getDb();
+    const pgSql = toPgQuery(sql);
+    const result = await p.query(pgSql, params);
+    return result.rows.length > 0 ? result.rows[0] : null;
 }
 
 async function all(sql, params = []) {
-    const d = await getDb();
-    const stmt = d.prepare(sql);
-    stmt.bind(params);
-    const rows = [];
-    while (stmt.step()) {
-        rows.push(stmt.getAsObject());
-    }
-    stmt.free();
-    return rows;
+    const p = await getDb();
+    const pgSql = toPgQuery(sql);
+    const result = await p.query(pgSql, params);
+    return result.rows;
 }
 
 module.exports = {
     getDb,
     run,
     get,
-    all,
-    saveDb,
+    all
 };

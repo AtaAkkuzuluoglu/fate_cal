@@ -33,7 +33,7 @@ router.post('/register', async (req, res) => {
 
         // Hash password & create user
         const hashedPassword = await bcrypt.hash(password, 10);
-        const result = await run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword]);
+        const result = await run('INSERT INTO users (username, password) VALUES (?, ?) RETURNING id', [username, hashedPassword]);
 
         const user = { id: result.lastInsertRowid, username };
         const token = generateToken(user);
