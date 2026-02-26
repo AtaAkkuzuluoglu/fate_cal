@@ -5,17 +5,17 @@
 import { getCurrentUser, logout } from '../engine/storage.js';
 
 const NAV_ITEMS = [
-    { id: 'home', label: 'Ana Sayfa', icon: '⚔' },
-    { id: 'character-creator', label: 'Karakter', icon: '✦' },
-    { id: 'game-session', label: 'Oyun', icon: '⚡' },
-    { id: 'dice-roller', label: 'Zar', icon: '🎲' },
+  { id: 'home', label: 'Ana Sayfa', icon: '⚔' },
+  { id: 'character-creator', label: 'Karakter', icon: '✦' },
+  { id: 'campaign', label: 'Serüven', icon: '🗺️' },
+  { id: 'dice-roller', label: 'Zar', icon: '🎲' },
 ];
 
 export function renderNavbar(currentPage, onNavigate) {
-    const nav = document.getElementById('main-nav');
-    const user = getCurrentUser();
+  const nav = document.getElementById('main-nav');
+  const user = getCurrentUser();
 
-    nav.innerHTML = `
+  nav.innerHTML = `
     <div class="nav-inner">
       <a class="nav-brand" href="#home">FATE CONDENSED</a>
       <ul class="nav-links">
@@ -37,11 +37,11 @@ export function renderNavbar(currentPage, onNavigate) {
     </div>
   `;
 
-    // Add styles for user section
-    if (!document.getElementById('nav-user-style')) {
-        const style = document.createElement('style');
-        style.id = 'nav-user-style';
-        style.textContent = `
+  // Add styles for user section
+  if (!document.getElementById('nav-user-style')) {
+    const style = document.createElement('style');
+    style.id = 'nav-user-style';
+    style.textContent = `
       .nav-user {
         display: flex;
         align-items: center;
@@ -56,17 +56,17 @@ export function renderNavbar(currentPage, onNavigate) {
         .nav-username { display: none; }
       }
     `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    nav.querySelectorAll('.nav-link').forEach(btn => {
-        btn.addEventListener('click', () => {
-            onNavigate(btn.dataset.page);
-        });
+  nav.querySelectorAll('.nav-link').forEach(btn => {
+    btn.addEventListener('click', () => {
+      onNavigate(btn.dataset.page);
     });
+  });
 
-    document.getElementById('logout-btn')?.addEventListener('click', () => {
-        logout();
-        onNavigate('auth');
-    });
+  document.getElementById('logout-btn')?.addEventListener('click', () => {
+    logout();
+    onNavigate('auth');
+  });
 }
