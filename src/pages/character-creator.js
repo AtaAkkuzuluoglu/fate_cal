@@ -8,19 +8,19 @@ import { saveCharacter } from '../engine/storage.js';
 import { showToast } from '../components/toast.js';
 
 const STEPS = [
-    { id: 'basics', label: 'Temel' },
-    { id: 'aspects', label: 'Aspect' },
-    { id: 'skills', label: 'Yetenekler' },
-    { id: 'stunts', label: 'Stunt' },
-    { id: 'summary', label: 'Özet' },
+  { id: 'basics', label: 'Temel' },
+  { id: 'aspects', label: 'Aspect' },
+  { id: 'skills', label: 'Yetenekler' },
+  { id: 'stunts', label: 'Stunt' },
+  { id: 'summary', label: 'Özet' },
 ];
 
 export function renderCharacterCreatorPage(container, navigate) {
-    let currentStep = 0;
-    let character = createCharacter();
+  let currentStep = 0;
+  let character = createCharacter();
 
-    function renderWizardProgress() {
-        return `
+  function renderWizardProgress() {
+    return `
       <div class="wizard-progress">
         ${STEPS.map((step, i) => `
           ${i > 0 ? `<div class="wizard-connector ${i <= currentStep ? 'completed' : ''}"></div>` : ''}
@@ -31,12 +31,12 @@ export function renderCharacterCreatorPage(container, navigate) {
         `).join('')}
       </div>
     `;
-    }
+  }
 
-    function renderStepContent() {
-        switch (STEPS[currentStep].id) {
-            case 'basics':
-                return `
+  function renderStepContent() {
+    switch (STEPS[currentStep].id) {
+      case 'basics':
+        return `
           <div class="card animate-in">
             <h3 style="margin-bottom: var(--sp-lg); font-family: var(--font-display);">Karakter Temelleri</h3>
             <div style="margin-bottom: var(--sp-lg);">
@@ -50,20 +50,20 @@ export function renderCharacterCreatorPage(container, navigate) {
           </div>
         `;
 
-            case 'aspects':
-                return `
+      case 'aspects':
+        return `
           <div class="card animate-in">
             <h3 style="margin-bottom: var(--sp-sm); font-family: var(--font-display);">Aspect'ler</h3>
             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: var(--sp-lg);">
               Karakterinizi tanımlayan 5 ifade. Invoke ve Compel mekanikleri ile oyunu etkiler.
             </p>
             ${[
-                        { key: 'highConcept', label: 'High Concept', hint: 'Karakterinizin özü nedir?', type: 'high-concept' },
-                        { key: 'trouble', label: 'Trouble', hint: 'Tekrarlayan sorun veya zayıflık', type: 'trouble' },
-                        { key: 'relationship', label: 'Relationship', hint: 'Önemli bir ilişki veya bağ', type: 'relationship' },
-                        { key: 'free1', label: 'Serbest Aspect 1', hint: 'Ekstra bir özellik veya geçmiş', type: 'free' },
-                        { key: 'free2', label: 'Serbest Aspect 2', hint: 'Başka bir önemli detay', type: 'free' },
-                    ].map(a => `
+            { key: 'highConcept', label: 'High Concept', hint: 'Karakterinizin özü nedir?', type: 'high-concept' },
+            { key: 'trouble', label: 'Trouble', hint: 'Tekrarlayan sorun veya zayıflık', type: 'trouble' },
+            { key: 'relationship', label: 'Relationship', hint: 'Önemli bir ilişki veya bağ', type: 'relationship' },
+            { key: 'free1', label: 'Serbest Aspect 1', hint: 'Ekstra bir özellik veya geçmiş', type: 'free' },
+            { key: 'free2', label: 'Serbest Aspect 2', hint: 'Başka bir önemli detay', type: 'free' },
+          ].map(a => `
               <div class="aspect-input-group" style="margin-bottom: var(--sp-md);">
                 <label class="label">
                   <span class="aspect-dot aspect-dot-${a.type}"></span>
@@ -77,8 +77,8 @@ export function renderCharacterCreatorPage(container, navigate) {
           </div>
         `;
 
-            case 'skills':
-                return `
+      case 'skills':
+        return `
           <div class="card animate-in">
             <h3 style="margin-bottom: var(--sp-sm); font-family: var(--font-display);">Yetenek Piramidi</h3>
             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: var(--sp-lg);">
@@ -92,11 +92,11 @@ export function renderCharacterCreatorPage(container, navigate) {
                 </div>
                 <div class="skill-row" style="flex-wrap: wrap; justify-content: flex-start;">
                   ${Array.from({ length: level.count }, (_, idx) => {
-                    const assigned = Object.entries(character.skills)
-                        .filter(([, r]) => r === level.rating)
-                        .map(([s]) => s);
-                    const current = assigned[idx] || '';
-                    return `
+          const assigned = Object.entries(character.skills)
+            .filter(([, r]) => r === level.rating)
+            .map(([s]) => s);
+          const current = assigned[idx] || '';
+          return `
                       <select class="select skill-select" data-rating="${level.rating}" data-index="${idx}"
                               style="min-width: 180px; max-width: 220px;">
                         <option value="">Seçin...</option>
@@ -109,7 +109,7 @@ export function renderCharacterCreatorPage(container, navigate) {
                         `).join('')}
                       </select>
                     `;
-                }).join('')}
+        }).join('')}
                 </div>
               </div>
             `).join('')}
@@ -117,8 +117,8 @@ export function renderCharacterCreatorPage(container, navigate) {
           </div>
         `;
 
-            case 'stunts':
-                return `
+      case 'stunts':
+        return `
           <div class="card animate-in">
             <h3 style="margin-bottom: var(--sp-sm); font-family: var(--font-display);">Stunt'lar</h3>
             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: var(--sp-lg);">
@@ -146,9 +146,9 @@ export function renderCharacterCreatorPage(container, navigate) {
           </div>
         `;
 
-            case 'summary':
-                const validation = validateSkillPyramid(character.skills);
-                return `
+      case 'summary':
+        const validation = validateSkillPyramid(character.skills);
+        return `
           <div class="card animate-in">
             <h3 style="margin-bottom: var(--sp-lg); font-family: var(--font-display);">Karakter Özeti</h3>
             
@@ -162,17 +162,17 @@ export function renderCharacterCreatorPage(container, navigate) {
               <span class="label">Aspect'ler</span>
               <div style="display: flex; flex-direction: column; gap: var(--sp-sm);">
                 ${Object.entries(character.aspects)
-                        .filter(([, v]) => v)
-                        .map(([k, v]) => {
-                            const types = { highConcept: 'high-concept', trouble: 'trouble', relationship: 'relationship', free1: 'free', free2: 'free' };
-                            const labels = { highConcept: 'High Concept', trouble: 'Trouble', relationship: 'Relationship', free1: 'Serbest 1', free2: 'Serbest 2' };
-                            return `
+            .filter(([, v]) => v)
+            .map(([k, v]) => {
+              const types = { highConcept: 'high-concept', trouble: 'trouble', relationship: 'relationship', free1: 'free', free2: 'free' };
+              const labels = { highConcept: 'High Concept', trouble: 'Trouble', relationship: 'Relationship', free1: 'Serbest 1', free2: 'Serbest 2' };
+              return `
                       <div class="aspect-card ${types[k]}">
                         <div class="aspect-type">${labels[k]}</div>
                         <div class="aspect-text">${v}</div>
                       </div>
                     `;
-                        }).join('')}
+            }).join('')}
               </div>
             </div>
 
@@ -185,8 +185,8 @@ export function renderCharacterCreatorPage(container, navigate) {
               ` : ''}
               <div class="skill-pyramid">
                 ${PYRAMID_STRUCTURE.map(level => {
-                            const skills = Object.entries(character.skills).filter(([, r]) => r === level.rating).map(([s]) => s);
-                            return skills.length > 0 ? `
+              const skills = Object.entries(character.skills).filter(([, r]) => r === level.rating).map(([s]) => s);
+              return skills.length > 0 ? `
                     <div class="skill-row">
                       ${skills.map(s => `
                         <div class="skill-slot">
@@ -196,7 +196,7 @@ export function renderCharacterCreatorPage(container, navigate) {
                       `).join('')}
                     </div>
                   ` : '';
-                        }).join('')}
+            }).join('')}
               </div>
             </div>
 
@@ -218,11 +218,11 @@ export function renderCharacterCreatorPage(container, navigate) {
             </div>
           </div>
         `;
-        }
     }
+  }
 
-    function render() {
-        container.innerHTML = `
+  function render() {
+    container.innerHTML = `
       <div class="creator-page">
         <div class="section-header animate-in">
           <h2>✦ Karakter Oluştur</h2>
@@ -243,111 +243,115 @@ export function renderCharacterCreatorPage(container, navigate) {
       </div>
     `;
 
-        // Add style for aspect dots
-        if (!document.getElementById('creator-style')) {
-            const style = document.createElement('style');
-            style.id = 'creator-style';
-            style.textContent = `
+    // Add style for aspect dots
+    if (!document.getElementById('creator-style')) {
+      const style = document.createElement('style');
+      style.id = 'creator-style';
+      style.textContent = `
         .aspect-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
         .aspect-dot-high-concept { background: var(--gold); }
         .aspect-dot-trouble { background: var(--danger); }
         .aspect-dot-relationship { background: var(--purple); }
         .aspect-dot-free { background: var(--info); }
       `;
-            document.head.appendChild(style);
-        }
-
-        bindEvents();
+      document.head.appendChild(style);
     }
 
-    function bindEvents() {
-        document.getElementById('prev-btn')?.addEventListener('click', () => {
-            if (currentStep > 0) { currentStep--; render(); }
-        });
-        document.getElementById('next-btn')?.addEventListener('click', () => {
-            collectCurrentStepData();
-            if (currentStep < STEPS.length - 1) { currentStep++; render(); }
-        });
-        document.getElementById('save-btn')?.addEventListener('click', async () => {
-            collectCurrentStepData();
-            if (!character.name.trim()) {
-                showToast('Karakter adı gerekli!', 'error');
-                return;
-            }
-            await saveCharacter(character);
-            showToast(`"${character.name}" kaydedildi!`, 'success');
-            navigate('character-sheet', { id: character.id });
-        });
+    bindEvents();
+  }
 
-        // Step-specific bindings
-        if (STEPS[currentStep].id === 'basics') {
-            document.getElementById('char-name')?.addEventListener('input', e => character.name = e.target.value);
-            document.getElementById('char-notes')?.addEventListener('input', e => character.notes = e.target.value);
-        }
+  function bindEvents() {
+    document.getElementById('prev-btn')?.addEventListener('click', () => {
+      if (currentStep > 0) { currentStep--; render(); }
+    });
+    document.getElementById('next-btn')?.addEventListener('click', () => {
+      collectCurrentStepData();
+      if (currentStep < STEPS.length - 1) { currentStep++; render(); }
+    });
+    document.getElementById('save-btn')?.addEventListener('click', async () => {
+      collectCurrentStepData();
+      if (!character.name.trim()) {
+        showToast('Karakter adı gerekli!', 'error');
+        return;
+      }
+      const success = await saveCharacter(character);
+      if (!success) {
+        showToast('Karakter kaydedilirken sunucu hatası oluştu!', 'error');
+        return;
+      }
+      showToast(`"${character.name}" kaydedildi!`, 'success');
+      navigate('character-sheet', { id: character.id });
+    });
 
-        if (STEPS[currentStep].id === 'aspects') {
-            container.querySelectorAll('.aspect-field').forEach(input => {
-                input.addEventListener('input', e => {
-                    character.aspects[e.target.dataset.key] = e.target.value;
-                });
-            });
-        }
-
-        if (STEPS[currentStep].id === 'skills') {
-            container.querySelectorAll('.skill-select').forEach(select => {
-                select.addEventListener('change', e => {
-                    const rating = parseInt(e.target.dataset.rating);
-                    const value = e.target.value;
-
-                    // Clear old assignment at this rating+index
-                    const assigned = Object.entries(character.skills)
-                        .filter(([, r]) => r === rating)
-                        .map(([s]) => s);
-                    const idx = parseInt(e.target.dataset.index);
-                    if (assigned[idx]) {
-                        character.skills[assigned[idx]] = 0;
-                    }
-
-                    // Set new
-                    if (value) {
-                        character.skills[value] = rating;
-                    }
-                    render();
-                });
-            });
-        }
-
-        if (STEPS[currentStep].id === 'stunts') {
-            document.getElementById('add-stunt-btn')?.addEventListener('click', () => {
-                character.stunts.push({ name: '', description: '' });
-                if (character.stunts.length > 3) {
-                    character.refresh = Math.max(1, 3 - (character.stunts.length - 3));
-                }
-                render();
-            });
-            container.querySelectorAll('.remove-stunt').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    character.stunts.splice(parseInt(btn.dataset.index), 1);
-                    character.refresh = Math.max(1, 3 - Math.max(0, character.stunts.length - 3));
-                    render();
-                });
-            });
-            container.querySelectorAll('.stunt-name').forEach(input => {
-                input.addEventListener('input', e => {
-                    character.stunts[parseInt(e.target.dataset.index)].name = e.target.value;
-                });
-            });
-            container.querySelectorAll('.stunt-desc').forEach(input => {
-                input.addEventListener('input', e => {
-                    character.stunts[parseInt(e.target.dataset.index)].description = e.target.value;
-                });
-            });
-        }
+    // Step-specific bindings
+    if (STEPS[currentStep].id === 'basics') {
+      document.getElementById('char-name')?.addEventListener('input', e => character.name = e.target.value);
+      document.getElementById('char-notes')?.addEventListener('input', e => character.notes = e.target.value);
     }
 
-    function collectCurrentStepData() {
-        // Data is collected via event listeners
+    if (STEPS[currentStep].id === 'aspects') {
+      container.querySelectorAll('.aspect-field').forEach(input => {
+        input.addEventListener('input', e => {
+          character.aspects[e.target.dataset.key] = e.target.value;
+        });
+      });
     }
 
-    render();
+    if (STEPS[currentStep].id === 'skills') {
+      container.querySelectorAll('.skill-select').forEach(select => {
+        select.addEventListener('change', e => {
+          const rating = parseInt(e.target.dataset.rating);
+          const value = e.target.value;
+
+          // Clear old assignment at this rating+index
+          const assigned = Object.entries(character.skills)
+            .filter(([, r]) => r === rating)
+            .map(([s]) => s);
+          const idx = parseInt(e.target.dataset.index);
+          if (assigned[idx]) {
+            character.skills[assigned[idx]] = 0;
+          }
+
+          // Set new
+          if (value) {
+            character.skills[value] = rating;
+          }
+          render();
+        });
+      });
+    }
+
+    if (STEPS[currentStep].id === 'stunts') {
+      document.getElementById('add-stunt-btn')?.addEventListener('click', () => {
+        character.stunts.push({ name: '', description: '' });
+        if (character.stunts.length > 3) {
+          character.refresh = Math.max(1, 3 - (character.stunts.length - 3));
+        }
+        render();
+      });
+      container.querySelectorAll('.remove-stunt').forEach(btn => {
+        btn.addEventListener('click', () => {
+          character.stunts.splice(parseInt(btn.dataset.index), 1);
+          character.refresh = Math.max(1, 3 - Math.max(0, character.stunts.length - 3));
+          render();
+        });
+      });
+      container.querySelectorAll('.stunt-name').forEach(input => {
+        input.addEventListener('input', e => {
+          character.stunts[parseInt(e.target.dataset.index)].name = e.target.value;
+        });
+      });
+      container.querySelectorAll('.stunt-desc').forEach(input => {
+        input.addEventListener('input', e => {
+          character.stunts[parseInt(e.target.dataset.index)].description = e.target.value;
+        });
+      });
+    }
+  }
+
+  function collectCurrentStepData() {
+    // Data is collected via event listeners
+  }
+
+  render();
 }

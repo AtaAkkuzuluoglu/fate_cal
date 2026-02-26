@@ -11,13 +11,16 @@ import { showToast } from '../components/toast.js';
 
 export async function renderCharacterSheetPage(container, navigate, params = {}) {
   container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Yükleniyor...</p></div>`;
-  let character = await getCharacter(params.id);
-  if (!character) {
+  let character;
+  try {
+    character = await getCharacter(params.id);
+    if (!character) throw new Error("Karakter bulunamadı");
+  } catch (err) {
     container.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">✦</div>
-        <p>Karakter bulunamadı</p>
-        <button class="btn btn-gold" id="back-home">Ana Sayfaya Dön</button>
+        <div class="empty-icon">${err.message.includes('bulunamadı') ? '✦' : '⚠'}</div>
+        <p>${err.message}</p>
+        <button class="btn btn-gold" id="back-home" style="margin-top: 1rem;">Ana Sayfaya Dön</button>
       </div>
     `;
     container.querySelector('#back-home')?.addEventListener('click', () => navigate('home'));

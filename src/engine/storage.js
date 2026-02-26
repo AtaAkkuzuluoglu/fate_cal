@@ -55,6 +55,7 @@ async function api(path, options = {}) {
         res = await fetch(`${API_BASE}${path}`, {
             ...options,
             headers,
+            cache: 'no-store'
         });
     } catch (networkErr) {
         throw new Error('Sunucuya bağlanılamıyor. Backend çalışıyor mu?');
@@ -70,6 +71,7 @@ async function api(path, options = {}) {
     }
 
     if (!res.ok) {
+        console.error(`API Error on ${path}:`, data);
         throw new Error((data && data.error) || `API hatası (${res.status})`);
     }
 
@@ -117,7 +119,8 @@ export async function saveCharacter(character) {
             body: JSON.stringify(character),
         });
         return true;
-    } catch {
+    } catch (err) {
+        console.error('Save character failed:', err);
         return false;
     }
 }
@@ -136,8 +139,9 @@ export async function getCharacter(id) {
     if (!isLoggedIn()) return null;
     try {
         return await api(`/characters/${id}`);
-    } catch {
-        return null;
+    } catch (err) {
+        console.error('Get character failed:', err);
+        throw err; // UI should handle this!
     }
 }
 

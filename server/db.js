@@ -14,37 +14,6 @@ async function getDb() {
         pool = createPool({
             connectionString: process.env.POSTGRES_URL
         });
-
-        // Initialize tables on first connection
-        try {
-            await pool.query(`
-                CREATE TABLE IF NOT EXISTS users (
-                    id SERIAL PRIMARY KEY,
-                    username VARCHAR(255) UNIQUE NOT NULL,
-                    password VARCHAR(255) NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            `);
-            await pool.query(`
-                CREATE TABLE IF NOT EXISTS characters (
-                    id VARCHAR(255) PRIMARY KEY,
-                    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                    data TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            `);
-            await pool.query(`
-                CREATE TABLE IF NOT EXISTS sessions (
-                    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-                    data TEXT NOT NULL,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            `);
-            console.log('Postgres tables initialized successfully.');
-        } catch (err) {
-            console.error('Failed to initialize Postgres tables:', err);
-        }
     }
     return pool;
 }
