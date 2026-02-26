@@ -4,7 +4,7 @@
 
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { createUser, findUserByUsername } = require('../db');
+const { run, get } = require('../db');
 const { generateToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -26,14 +26,14 @@ router.post('/register', async (req, res) => {
         }
 
         // Check if username exists
-        const existing = findUserByUsername.get(username);
+        const existing = await get('SELECT * FROM users WHERE username = ?', [username]);
         if (existing) {
             return res.status(409).json({ error: 'Bu kullanıcı adı zaten alınmış' });
         }
 
         // Hash password & create user
         const hashedPassword = await bcrypt.hash(password, 10);
-        const result = createUser.run(username, hashedPassword);
+        const result = await run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword]);
 
         const user = { id: result.lastInsertRowid, username };
         const token = generateToken(user);
@@ -59,7 +59,7 @@ router.post('/login', async (req, res) => {
         }
 
         // Find user
-        const user = findUserByUsername.get(username);
+        const user = await get('SELECT * FROM users WHERE username = ?', [username]);
         if (!user) {
             return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı' });
         }
