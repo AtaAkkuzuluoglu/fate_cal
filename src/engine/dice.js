@@ -3,8 +3,8 @@
 // ═══════════════════════════════════════
 
 const LADDER = {
-    '-4': 'Berbat', '-3': 'Kötü',
-    '-2': 'Korkunç', '-1': 'Zayıf',
+    '-4': 'Berbat', '-3': 'Korkunç',
+    '-2': 'Kötü', '-1': 'Zayıf',
     '0': 'Sıradan', '1': 'Ortalama',
     '2': 'Adil', '3': 'İyi',
     '4': 'Harika', '5': 'Mükemmel',
