@@ -1168,6 +1168,7 @@ h3 {
   #page-content {
     padding-left: var(--sp-md);
     padding-right: var(--sp-md);
+    overflow-x: hidden;
   }
 
   .grid-2,
@@ -1257,7 +1258,26 @@ h3 {
   }
 
   .skill-slot {
-    min-width: 140px;
+    min-width: 120px;
+  }
+
+  /* Prevent horizontal overflow on character sheet */
+  .sheet-page {
+    overflow-x: hidden;
+    word-break: break-word;
+  }
+
+  .sheet-header {
+    flex-direction: column !important;
+    gap: var(--sp-md);
+  }
+
+  .consequence-input {
+    min-width: 120px !important;
+  }
+
+  .card {
+    overflow: hidden;
   }
 }
 
