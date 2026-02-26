@@ -93,44 +93,4 @@ router.delete('/characters/:id', async (req, res) => {
     }
 });
 
-// ── Game Session ──
-
-// GET /api/session — get saved session
-router.get('/session', async (req, res) => {
-    try {
-        const row = await get('SELECT * FROM sessions WHERE user_id = ?', [req.userId]);
-        if (!row) return res.json(null);
-        res.json(JSON.parse(row.data));
-    } catch (err) {
-        console.error('Get session error:', err);
-        res.status(500).json({ error: 'Sunucu hatası' });
-    }
-});
-
-// POST /api/session — save session
-router.post('/session', async (req, res) => {
-    try {
-        const sessionData = req.body;
-        await run(`
-          INSERT INTO sessions (user_id, data, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)
-          ON CONFLICT(user_id) DO UPDATE SET data = excluded.data, updated_at = CURRENT_TIMESTAMP
-        `, [req.userId, JSON.stringify(sessionData)]);
-        res.json({ message: 'Oturum kaydedildi' });
-    } catch (err) {
-        console.error('Save session error:', err);
-        res.status(500).json({ error: 'Sunucu hatası' });
-    }
-});
-
-// DELETE /api/session — clear session
-router.delete('/session', async (req, res) => {
-    try {
-        await run('DELETE FROM sessions WHERE user_id = ?', [req.userId]);
-        res.json({ message: 'Oturum temizlendi' });
-    } catch (err) {
-        console.error('Delete session error:', err);
-        res.status(500).json({ error: 'Sunucu hatası' });
-    }
-});
-
 module.exports = router;

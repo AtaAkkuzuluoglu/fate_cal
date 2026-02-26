@@ -57,9 +57,53 @@ async function all(sql, params = []) {
     return result.rows;
 }
 
+// ── Schema Synchronization (One-Time / Manual) ──
+async function syncSchema() {
+    const p = await getDb();
+
+    // Ensure users table has role column
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(50) DEFAULT 'player'
+      )
+    `);
+
+    // Add role column if it doesn't exist (for existing DBs)
+    try {
+        await p.query(`ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'player'`);
+    } catch (e) { /* Column might already exist, ignore */ }
+
+    // Create campaign_characters table
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS campaign_characters (
+        id SERIAL PRIMARY KEY,
+        dm_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        character_id VARCHAR(255) NOT NULL,
+        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(dm_id, character_id)
+      )
+    `);
+
+    // Create campaign_notes table
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS campaign_notes (
+        id SERIAL PRIMARY KEY,
+        dm_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+        content TEXT,
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    console.log("Database schema synced!");
+}
+
 module.exports = {
     getDb,
     run,
     get,
-    all
+    all,
+    syncSchema
 };

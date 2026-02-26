@@ -90,11 +90,16 @@ export async function login(username, password) {
     return data;
 }
 
-export async function register(username, password) {
-    const data = await api('/register', {
+export async function register(username, password, role = 'player') {
+    const res = await fetch('/api/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ username, password }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, role })
     });
+    const data = await res.json(); // Assuming the response is JSON
+    if (!res.ok) {
+        throw new Error(data.error || 'Registration failed');
+    }
     setToken(data.token);
     setUser(data.user);
     return data;
@@ -145,35 +150,30 @@ export async function getCharacter(id) {
     }
 }
 
-// ── Session ──
+// ── Campaign (Serüven) ──
 
-export async function loadSession() {
+export async function addCharacterToCampaign(characterId) {
+    if (!isLoggedIn()) throw new Error('Not logged in');
+    return await api('/campaign/add-character', {
+        method: 'POST',
+        body: JSON.stringify({ characterId })
+    });
+}
+
+export async function getCampaignCharacters() {
+    if (!isLoggedIn()) return [];
+    return await api('/campaign/characters');
+}
+
+export async function getCampaignNotes() {
     if (!isLoggedIn()) return null;
-    try {
-        return await api('/session');
-    } catch {
-        return null;
-    }
+    return await api('/campaign/notes');
 }
 
-export async function saveSession(session) {
-    if (!isLoggedIn()) return false;
-    try {
-        await api('/session', {
-            method: 'POST',
-            body: JSON.stringify(session),
-        });
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-export async function clearSession() {
-    if (!isLoggedIn()) return;
-    try {
-        await api('/session', { method: 'DELETE' });
-    } catch {
-        // ignore
-    }
+export async function saveCampaignNotes(content) {
+    if (!isLoggedIn()) throw new Error('Not logged in');
+    return await api('/campaign/notes', {
+        method: 'POST',
+        body: JSON.stringify({ content })
+    });
 }

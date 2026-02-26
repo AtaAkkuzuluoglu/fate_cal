@@ -8,7 +8,7 @@ import { renderHomePage } from './pages/home.js';
 import { renderDiceRollerPage } from './pages/dice-roller.js';
 import { renderCharacterCreatorPage } from './pages/character-creator.js';
 import { renderCharacterSheetPage } from './pages/character-sheet.js';
-import { renderGameSessionPage } from './pages/game-session.js';
+import { renderCampaignPage } from './pages/campaign.js';
 import { renderAuthPage } from './pages/auth.js';
 import { isLoggedIn } from './engine/storage.js';
 
@@ -22,7 +22,7 @@ const routes = {
   'dice-roller': (c, nav, p) => renderDiceRollerPage(c),
   'character-creator': (c, nav, p) => renderCharacterCreatorPage(c, nav),
   'character-sheet': (c, nav, p) => renderCharacterSheetPage(c, nav, p),
-  'game-session': (c, nav, p) => renderGameSessionPage(c, nav),
+  'campaign': (c, nav, p) => renderCampaignPage(c, nav),
 };
 
 // Pages that don't require auth

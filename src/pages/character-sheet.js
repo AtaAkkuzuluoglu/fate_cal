@@ -41,8 +41,12 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
           <div>
             <h2 style="font-family: var(--font-display); margin-bottom: var(--sp-xs);">${character.name}</h2>
             ${character.aspects.highConcept ? `
-              <p style="color: var(--text-secondary); font-style: italic;">"${character.aspects.highConcept}"</p>
+              <p style="color: var(--text-secondary); font-style: italic; margin-bottom: var(--sp-xs);">"${character.aspects.highConcept}"</p>
             ` : ''}
+            <div style="font-size: 0.8rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: var(--sp-sm); background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: var(--radius-sm); border: 1px dashed var(--border-light);">
+              <span>Serüven Kodu: </span>
+              <code style="color: var(--gold); user-select: all;" id="char-code">${character.id}</code>
+            </div>
           </div>
           <div style="display: flex; gap: var(--sp-sm);">
             <button class="btn btn-outline btn-sm" id="edit-btn">✎ Düzenle</button>

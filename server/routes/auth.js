@@ -9,10 +9,22 @@ const { generateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
+// GET /api/sync-db (One-Time Setup)
+router.get('/sync-db', async (req, res) => {
+    try {
+        const { syncSchema } = require('../db');
+        await syncSchema();
+        res.json({ message: 'Database schema synchronized.' });
+    } catch (err) {
+        console.error('Sync error:', err);
+        res.status(500).json({ error: 'Sync failed' });
+    }
+});
+
 // POST /api/register
 router.post('/register', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, role = 'player' } = req.body;
 
         // Validate
         if (!username || !password) {
@@ -24,6 +36,9 @@ router.post('/register', async (req, res) => {
         if (password.length < 4) {
             return res.status(400).json({ error: 'Şifre en az 4 karakter olmalı' });
         }
+        if (!['player', 'dm'].includes(role)) {
+            return res.status(400).json({ error: 'Geçersiz rol' });
+        }
 
         // Check if username exists
         const existing = await get('SELECT * FROM users WHERE username = ?', [username]);
@@ -33,14 +48,14 @@ router.post('/register', async (req, res) => {
 
         // Hash password & create user
         const hashedPassword = await bcrypt.hash(password, 10);
-        const result = await run('INSERT INTO users (username, password) VALUES (?, ?) RETURNING id', [username, hashedPassword]);
+        const result = await run('INSERT INTO users (username, password, role) VALUES (?, ?, ?) RETURNING id', [username, hashedPassword, role]);
 
-        const user = { id: result.lastInsertRowid, username };
+        const user = { id: result.lastInsertRowid, username, role };
         const token = generateToken(user);
 
         res.status(201).json({
             message: 'Hesap oluşturuldu',
-            user: { id: user.id, username },
+            user: { id: user.id, username, role },
             token
         });
     } catch (err) {
@@ -74,7 +89,7 @@ router.post('/login', async (req, res) => {
 
         res.json({
             message: 'Giriş başarılı',
-            user: { id: user.id, username: user.username },
+            user: { id: user.id, username: user.username, role: user.role || 'player' },
             token
         });
     } catch (err) {

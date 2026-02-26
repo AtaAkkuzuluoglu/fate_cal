@@ -22,5 +22,7 @@ app.get('/api/health', (req, res) => {
 // ── API Routes ──
 app.use('/api', authRoutes);
 app.use('/api', characterRoutes);
+const campaignRoutes = require('./routes/campaign');
+app.use('/api', campaignRoutes);
 
 module.exports = app;

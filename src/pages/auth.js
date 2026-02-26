@@ -6,11 +6,11 @@ import { login, register } from '../engine/storage.js';
 import { showToast } from '../components/toast.js';
 
 export function renderAuthPage(container, navigate) {
-    let mode = 'login'; // 'login' or 'register'
-    let loading = false;
+  let mode = 'login'; // 'login' or 'register'
+  let loading = false;
 
-    function render() {
-        container.innerHTML = `
+  function render() {
+    container.innerHTML = `
       <div class="auth-page">
         <div class="auth-container animate-in">
           <div class="auth-brand">
@@ -43,6 +43,19 @@ export function renderAuthPage(container, navigate) {
                 <input class="input" id="auth-password2" type="password" placeholder="Şifrenizi tekrar girin"
                        autocomplete="new-password" required minlength="4" />
               </div>
+              <div class="form-group" style="margin-top: var(--sp-sm);">
+                <label class="label">Rolünüz</label>
+                <div style="display: flex; gap: var(--sp-sm);">
+                  <label style="flex: 1; display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px; background: rgba(255,255,255,0.05); border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                    <input type="radio" name="auth-role" value="player" checked>
+                    <span>Oyuncu</span>
+                  </label>
+                  <label style="flex: 1; display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px; background: rgba(255,255,255,0.05); border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                    <input type="radio" name="auth-role" value="dm">
+                    <span>Oyun Yöneticisi (DM)</span>
+                  </label>
+                </div>
+              </div>
             ` : ''}
             <div id="auth-error" class="auth-error" style="display: none;"></div>
             <button class="btn btn-gold btn-lg auth-submit" type="submit" ${loading ? 'disabled' : ''}>
@@ -52,8 +65,8 @@ export function renderAuthPage(container, navigate) {
 
           <p class="auth-switch">
             ${mode === 'login'
-                ? 'Hesabınız yok mu? <a href="#" id="switch-mode">Kayıt olun</a>'
-                : 'Zaten hesabınız var mı? <a href="#" id="switch-mode">Giriş yapın</a>'}
+        ? 'Hesabınız yok mu? <a href="#" id="switch-mode">Kayıt olun</a>'
+        : 'Zaten hesabınız var mı? <a href="#" id="switch-mode">Giriş yapın</a>'}
           </p>
         </div>
       </div>
@@ -162,70 +175,72 @@ export function renderAuthPage(container, navigate) {
       </style>
     `;
 
-        bindEvents();
-    }
+    bindEvents();
+  }
 
-    function bindEvents() {
-        // Tab switching
-        container.querySelectorAll('.auth-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                mode = tab.dataset.mode;
-                render();
-            });
-        });
+  function bindEvents() {
+    // Tab switching
+    container.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        mode = tab.dataset.mode;
+        render();
+      });
+    });
 
-        // Switch link
-        document.getElementById('switch-mode')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            mode = mode === 'login' ? 'register' : 'login';
-            render();
-        });
+    // Switch link
+    document.getElementById('switch-mode')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      mode = mode === 'login' ? 'register' : 'login';
+      render();
+    });
 
-        // Form submit
-        document.getElementById('auth-form')?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const errorEl = document.getElementById('auth-error');
-            errorEl.style.display = 'none';
+    // Form submit
+    document.getElementById('auth-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorEl = document.getElementById('auth-error');
+      errorEl.style.display = 'none';
 
-            const username = document.getElementById('auth-username').value.trim();
-            const password = document.getElementById('auth-password').value;
+      const username = document.getElementById('auth-username').value.trim();
+      const password = document.getElementById('auth-password').value;
+      let role = 'player';
 
-            if (mode === 'register') {
-                const password2 = document.getElementById('auth-password2').value;
-                if (password !== password2) {
-                    errorEl.textContent = 'Şifreler eşleşmiyor!';
-                    errorEl.style.display = 'block';
-                    return;
-                }
-            }
+      if (mode === 'register') {
+        const password2 = document.getElementById('auth-password2').value;
+        role = document.querySelector('input[name="auth-role"]:checked')?.value || 'player';
+        if (password !== password2) {
+          errorEl.textContent = 'Şifreler eşleşmiyor!';
+          errorEl.style.display = 'block';
+          return;
+        }
+      }
 
-            loading = true;
-            const submitBtn = container.querySelector('.auth-submit');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = '⏳ Bekleyin...';
-            }
+      loading = true;
+      const submitBtn = container.querySelector('.auth-submit');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Bekleyin...';
+      }
 
-            try {
-                if (mode === 'login') {
-                    await login(username, password);
-                    showToast('Giriş başarılı!', 'success');
-                } else {
-                    await register(username, password);
-                    showToast('Hesap oluşturuldu!', 'success');
-                }
-                navigate('home');
-            } catch (err) {
-                errorEl.textContent = err.message || 'Bir hata oluştu';
-                errorEl.style.display = 'block';
-                loading = false;
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = mode === 'login' ? '🔑 Giriş Yap' : '✦ Kayıt Ol';
-                }
-            }
-        });
-    }
+      try {
+        if (mode === 'login') {
+          await login(username, password);
+          showToast('Giriş başarılı!', 'success');
+        } else {
+          await register(username, password, role);
+          showToast('Hesap oluşturuldu!', 'success');
+        }
+        navigate('home');
+      } catch (err) {
+        errorEl.textContent = err.message || 'Bir hata oluştu';
+        errorEl.style.display = 'block';
+        loading = false;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = mode === 'login' ? '🔑 Giriş Yap' : '✦ Kayıt Ol';
+        }
+      }
+    });
+  }
 
-    render();
+  render();
 }

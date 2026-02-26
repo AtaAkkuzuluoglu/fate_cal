@@ -5,12 +5,12 @@
 import { loadCharacters } from '../engine/storage.js';
 
 export async function renderHomePage(container, navigate) {
-    // Show loading state
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Yükleniyor...</p></div>`;
+  // Show loading state
+  container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Yükleniyor...</p></div>`;
 
-    const characters = await loadCharacters();
+  const characters = await loadCharacters();
 
-    container.innerHTML = `
+  container.innerHTML = `
     <div class="home-page">
       <!-- Hero Section -->
       <section class="hero animate-in">
@@ -37,10 +37,10 @@ export async function renderHomePage(container, navigate) {
             <h3>Zar At</h3>
             <p>4 Fate zarı at, yetenek ve bonus ekle</p>
           </button>
-          <button class="card quick-card animate-in animate-in-delay-3" id="qa-session">
-            <div class="quick-icon">⚡</div>
-            <h3>Oyun Başlat</h3>
-            <p>Çatışma, yarışma veya mücadele sahnesi aç</p>
+          <button class="card quick-card animate-in animate-in-delay-3" id="qa-campaign">
+            <div class="quick-icon">📜</div>
+            <h3>Serüven</h3>
+            <p>Kampanyalara katıl, ortak notları oku veya yönet</p>
           </button>
         </div>
       </section>
@@ -97,9 +97,9 @@ export async function renderHomePage(container, navigate) {
     </div>
   `;
 
-    // Styles
-    const style = document.createElement('style');
-    style.textContent = `
+  // Styles
+  const style = document.createElement('style');
+  style.textContent = `
     .hero {
       text-align: center;
       padding: var(--sp-3xl) 0;
@@ -197,17 +197,17 @@ export async function renderHomePage(container, navigate) {
       .hero-condensed { font-size: 0.9rem; letter-spacing: 6px; }
     }
   `;
-    container.appendChild(style);
+  container.appendChild(style);
 
-    // Events
-    document.getElementById('qa-create')?.addEventListener('click', () => navigate('character-creator'));
-    document.getElementById('qa-dice')?.addEventListener('click', () => navigate('dice-roller'));
-    document.getElementById('qa-session')?.addEventListener('click', () => navigate('game-session'));
-    document.getElementById('empty-create-btn')?.addEventListener('click', () => navigate('character-creator'));
+  // Events
+  document.getElementById('qa-create')?.addEventListener('click', () => navigate('character-creator'));
+  document.getElementById('qa-dice')?.addEventListener('click', () => navigate('dice-roller'));
+  document.getElementById('qa-campaign')?.addEventListener('click', () => navigate('campaign'));
+  document.getElementById('empty-create-btn')?.addEventListener('click', () => navigate('character-creator'));
 
-    container.querySelectorAll('.char-card').forEach(card => {
-        card.addEventListener('click', () => {
-            navigate('character-sheet', { id: card.dataset.id });
-        });
+  container.querySelectorAll('.char-card').forEach(card => {
+    card.addEventListener('click', () => {
+      navigate('character-sheet', { id: card.dataset.id });
     });
+  });
 }
