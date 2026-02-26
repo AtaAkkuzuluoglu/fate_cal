@@ -141,7 +141,7 @@ export function renderDiceRollerPage(container) {
         const disp = getOutcomeDisplay(h.outcome);
         return `
                       <div class="log-entry roll">
-                        <span style="color: ${disp.color}; font-weight: 700;">
+                        <span style="color: ${h.result > 0 ? 'var(--success)' : h.result < 0 ? 'var(--danger)' : 'var(--warning)'}; font-weight: 700;">
                           ${disp.emoji} ${h.result >= 0 ? '+' : ''}${h.result}
                         </span>
                         <span style="margin-left: 8px;">${disp.label}</span>
