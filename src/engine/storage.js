@@ -91,10 +91,12 @@ export async function login(username, password) {
 }
 
 export async function register(username, password, role = 'player') {
-    const res = await fetch('/api/auth/register', {
+    const res = await fetch('/api/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, role })
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password, role }),
     });
     const data = await res.json(); // Assuming the response is JSON
     if (!res.ok) {
