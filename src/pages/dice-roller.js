@@ -5,6 +5,7 @@
 import { rollFateDice, calculateResult, getOutcome, getLadderLabel, getDieSymbol, getDieClass, getOutcomeDisplay } from '../engine/dice.js';
 import { SKILL_LIST, getSkillTranslation } from '../engine/skills.js';
 import { showToast } from '../components/toast.js';
+import { t } from '../engine/i18n.js';
 
 export function renderDiceRollerPage(container) {
   let rollHistory = [];
@@ -18,8 +19,8 @@ export function renderDiceRollerPage(container) {
     container.innerHTML = `
       <div class="dice-page">
         <div class="section-header animate-in">
-          <h2>🎲 Zar Atma</h2>
-          <p>4 Fate Zarı (4dF) ile aksiyonunuzu çözün</p>
+          <h2>🎲 ${t('dice.title')}</h2>
+          <p>${t('dice.desc')}</p>
         </div>
 
         <div class="grid-2">
@@ -56,30 +57,30 @@ export function renderDiceRollerPage(container) {
                       ${display.label}
                     </div>
                     <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: var(--sp-sm);">
-                      Zar: ${currentDice.reduce((s, d) => s + d, 0) >= 0 ? '+' : ''}${currentDice.reduce((s, d) => s + d, 0)}
-                      ${skillRating ? ` | Yetenek: +${skillRating}` : ''}
+                      ${t('dice.roll_label')}: ${currentDice.reduce((s, d) => s + d, 0) >= 0 ? '+' : ''}${currentDice.reduce((s, d) => s + d, 0)}
+                      ${skillRating ? ` | ${t('dice.skill')}: +${skillRating}` : ''}
                       ${bonus ? ` | Bonus: +${bonus}` : ''}
-                      | Shift: ${out.shifts >= 0 ? '+' : ''}${out.shifts}
+                      | ${t('dice.shift_label')}: ${out.shifts >= 0 ? '+' : ''}${out.shifts}
                     </div>
                   </div>
                 `;
       })() : `
-                <p style="color: var(--text-muted); font-style: italic;">Zar atın ve sonucu görün</p>
+                <p style="color: var(--text-muted); font-style: italic;">${t('dice.idle')}</p>
               `}
 
               <button class="btn btn-gold btn-lg" id="roll-btn" style="margin-top: var(--sp-lg); min-width: 200px;">
-                🎲 Zar At!
+                ${t('dice.btn')}
               </button>
             </div>
 
             <!-- Controls -->
             <div class="card">
-              <h3 style="margin-bottom: var(--sp-md); font-family: var(--font-display);">Ayarlar</h3>
+              <h3 style="margin-bottom: var(--sp-md); font-family: var(--font-display);">${t('dice.settings')}</h3>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-md);">
                 <div>
-                  <label class="label">Yetenek</label>
+                  <label class="label">${t('dice.skill')}</label>
                   <select class="select" id="skill-select">
-                    <option value="">Yetenek Seçin</option>
+                    <option value="">${t('dice.skill_select')}</option>
                     ${SKILL_LIST.map(s => `
                       <option value="${s}" ${s === selectedSkill ? 'selected' : ''}>
                         ${getSkillTranslation(s)} (${s})
@@ -88,7 +89,7 @@ export function renderDiceRollerPage(container) {
                   </select>
                 </div>
                 <div>
-                  <label class="label">Yetenek Seviyesi</label>
+                  <label class="label">${t('dice.rating')}</label>
                   <select class="select" id="skill-rating">
                     ${[0, 1, 2, 3, 4, 5, 6, 7, 8].map(r => `
                       <option value="${r}" ${r === skillRating ? 'selected' : ''}>
@@ -98,7 +99,7 @@ export function renderDiceRollerPage(container) {
                   </select>
                 </div>
                 <div>
-                  <label class="label">Bonus (+2 Invoke vb.)</label>
+                  <label class="label">${t('dice.bonus')}</label>
                   <select class="select" id="bonus-select">
                     ${[0, 2, 4, 6, 8].map(b => `
                       <option value="${b}" ${b === bonus ? 'selected' : ''}>+${b}</option>
@@ -113,7 +114,7 @@ export function renderDiceRollerPage(container) {
           <div class="animate-in animate-in-delay-2">
             <!-- Ladder Reference -->
             <div class="card" style="margin-bottom: var(--sp-lg);">
-              <h3 style="margin-bottom: var(--sp-md); font-family: var(--font-display);">Merdiven</h3>
+              <h3 style="margin-bottom: var(--sp-md); font-family: var(--font-display);">${t('dice.ladder')}</h3>
               <div style="display: flex; flex-direction: column; gap: 4px;">
                 ${[8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4].map(v => {
         let vColor = 'var(--warning)'; // 0
@@ -134,7 +135,7 @@ export function renderDiceRollerPage(container) {
 
             <!-- Roll History -->
             <div class="card">
-              <h3 style="margin-bottom: var(--sp-md); font-family: var(--font-display);">Atış Geçmişi</h3>
+              <h3 style="margin-bottom: var(--sp-md); font-family: var(--font-display);">${t('dice.history')}</h3>
               ${rollHistory.length > 0 ? `
                 <div class="action-log">
                   ${rollHistory.slice().reverse().map(h => {
@@ -152,7 +153,7 @@ export function renderDiceRollerPage(container) {
                 </div>
               ` : `
                 <div class="empty-state" style="padding: var(--sp-lg);">
-                  <p style="color: var(--text-muted); font-size: 0.85rem;">Henüz atış yapılmadı</p>
+                  <p style="color: var(--text-muted); font-size: 0.85rem;">${t('dice.no_history')}</p>
                 </div>
               `}
             </div>

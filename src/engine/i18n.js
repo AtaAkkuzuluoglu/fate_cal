@@ -155,6 +155,22 @@ const dictionary = {
     'error.pyramid': { tr: '{label} (+{rating}): {expected} yetenek olmalı, {actual} tane var', en: '{label} (+{rating}): must have {expected} skills, has {actual}' },
     'error.invalid_skill': { tr: 'Geçersiz yetenek: {skill}', en: 'Invalid skill: {skill}' },
 
+    // Dice Roller
+    'dice.title': { tr: 'Zar Atma', en: 'Dice Roller' },
+    'dice.desc': { tr: '4 Fate Zarı (4dF) ile aksiyonunuzu çözün', en: 'Resolve actions rolling 4 Fate Dice (4dF)' },
+    'dice.idle': { tr: 'Zar atın ve sonucu görün', en: 'Roll the dice and see the result' },
+    'dice.btn': { tr: '🎲 Zar At!', en: '🎲 Roll Dice!' },
+    'dice.settings': { tr: 'Ayarlar', en: 'Settings' },
+    'dice.skill': { tr: 'Yetenek', en: 'Skill' },
+    'dice.skill_select': { tr: 'Yetenek Seçin', en: 'Select Skill' },
+    'dice.rating': { tr: 'Yetenek Seviyesi', en: 'Skill Rating' },
+    'dice.bonus': { tr: 'Bonus (+2 Invoke vb.)', en: 'Bonus (+2 Invoke etc.)' },
+    'dice.ladder': { tr: 'Merdiven', en: 'Ladder' },
+    'dice.history': { tr: 'Atış Geçmişi', en: 'Roll History' },
+    'dice.no_history': { tr: 'Henüz atış yapılmadı', en: 'No rolls yet' },
+    'dice.roll_label': { tr: 'Zar', en: 'Roll' },
+    'dice.shift_label': { tr: 'Shift', en: 'Shift' },
+
     // Campaign
     'campaign.title_dm': { tr: 'Oyun Yöneticisi Paneli', en: 'Dungeon Master Panel' },
     'campaign.title_player': { tr: 'Oyuncu Paneli', en: 'Player Panel' },
