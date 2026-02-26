@@ -18,13 +18,14 @@ export function createCharacter(overrides = {}) {
             trouble: '',
             relationship: '',
             free1: '',
-            free2: ''
+            free2: '',
+            free3: ''
         },
         skills: createEmptySkills(),
         stunts: [],   // Array of { name, description }
         stress: {
-            physical: [false, false, false],
-            mental: [false, false, false]
+            physical: [false, false],
+            mental: [false, false]
         },
         consequences: {
             mild: null,      // string or null
@@ -126,4 +127,34 @@ export function absorbStress(character, shifts, track = 'physical') {
     }
 
     return remaining;
+}
+
+/**
+ * Update the size of the stress tracks based on Fate Condensed rules:
+ * Physique/Will <= 0: 2 boxes
+ * Physique/Will 1 or 2: 3 boxes
+ * Physique/Will >= 3: 4 boxes
+ */
+export function updateStressLimits(character) {
+    const physique = character.skills.Physique || 0;
+    const will = character.skills.Will || 0;
+
+    const getBoxes = (skill) => {
+        if (skill <= 0) return 2;
+        if (skill === 1 || skill === 2) return 3;
+        return 4;
+    };
+
+    const physBoxes = getBoxes(physique);
+    const mentalBoxes = getBoxes(will);
+
+    // Resize physical
+    while (character.stress.physical.length < physBoxes) character.stress.physical.push(false);
+    character.stress.physical.length = physBoxes;
+
+    // Resize mental
+    while (character.stress.mental.length < mentalBoxes) character.stress.mental.push(false);
+    character.stress.mental.length = mentalBoxes;
+
+    return character;
 }

@@ -2,7 +2,7 @@
 // Character Creator — Step-by-step wizard
 // ═══════════════════════════════════════
 
-import { createCharacter } from '../engine/character.js';
+import { createCharacter, updateStressLimits } from '../engine/character.js';
 import { SKILL_LIST, SKILL_TRANSLATIONS, PYRAMID_STRUCTURE, validateSkillPyramid, getRatingLabel } from '../engine/skills.js';
 import { saveCharacter } from '../engine/storage.js';
 import { showToast } from '../components/toast.js';
@@ -55,7 +55,7 @@ export function renderCharacterCreatorPage(container, navigate) {
           <div class="card animate-in">
             <h3 style="margin-bottom: var(--sp-sm); font-family: var(--font-display);">Aspect'ler</h3>
             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: var(--sp-lg);">
-              Karakterinizi tanımlayan 5 ifade. Invoke ve Compel mekanikleri ile oyunu etkiler.
+              Karakterinizi tanımlayan 6 ifade. Invoke ve Compel mekanikleri ile oyunu etkiler.
             </p>
             ${[
             { key: 'highConcept', label: 'High Concept', hint: 'Karakterinizin özü nedir?', type: 'high-concept' },
@@ -63,6 +63,7 @@ export function renderCharacterCreatorPage(container, navigate) {
             { key: 'relationship', label: 'Relationship', hint: 'Önemli bir ilişki veya bağ', type: 'relationship' },
             { key: 'free1', label: 'Serbest Aspect 1', hint: 'Ekstra bir özellik veya geçmiş', type: 'free' },
             { key: 'free2', label: 'Serbest Aspect 2', hint: 'Başka bir önemli detay', type: 'free' },
+            { key: 'free3', label: 'Serbest Aspect 3', hint: 'Son dokunuşlar', type: 'free' },
           ].map(a => `
               <div class="aspect-input-group" style="margin-bottom: var(--sp-md);">
                 <label class="label">
@@ -164,8 +165,8 @@ export function renderCharacterCreatorPage(container, navigate) {
                 ${Object.entries(character.aspects)
             .filter(([, v]) => v)
             .map(([k, v]) => {
-              const types = { highConcept: 'high-concept', trouble: 'trouble', relationship: 'relationship', free1: 'free', free2: 'free' };
-              const labels = { highConcept: 'High Concept', trouble: 'Trouble', relationship: 'Relationship', free1: 'Serbest 1', free2: 'Serbest 2' };
+              const types = { highConcept: 'high-concept', trouble: 'trouble', relationship: 'relationship', free1: 'free', free2: 'free', free3: 'free' };
+              const labels = { highConcept: 'High Concept', trouble: 'Trouble', relationship: 'Relationship', free1: 'Serbest 1', free2: 'Serbest 2', free3: 'Serbest 3' };
               return `
                       <div class="aspect-card ${types[k]}">
                         <div class="aspect-type">${labels[k]}</div>
@@ -274,6 +275,7 @@ export function renderCharacterCreatorPage(container, navigate) {
         showToast('Karakter adı gerekli!', 'error');
         return;
       }
+      updateStressLimits(character);
       const success = await saveCharacter(character);
       if (!success) {
         showToast('Karakter kaydedilirken sunucu hatası oluştu!', 'error');

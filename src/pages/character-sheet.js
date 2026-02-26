@@ -80,8 +80,8 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
                 ${Object.entries(character.aspects)
         .filter(([, v]) => v)
         .map(([k, v]) => {
-          const types = { highConcept: 'high-concept', trouble: 'trouble', relationship: 'relationship', free1: 'free', free2: 'free' };
-          const labels = { highConcept: 'High Concept', trouble: 'Trouble', relationship: 'Relationship', free1: 'Serbest 1', free2: 'Serbest 2' };
+          const types = { highConcept: 'high-concept', trouble: 'trouble', relationship: 'relationship', free1: 'free', free2: 'free', free3: 'free' };
+          const labels = { highConcept: 'High Concept', trouble: 'Trouble', relationship: 'Relationship', free1: 'Serbest 1', free2: 'Serbest 2', free3: 'Serbest 3' };
           return `
                       <div class="aspect-card ${types[k]}">
                         <div class="aspect-type">${labels[k]}</div>
