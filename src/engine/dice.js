@@ -3,13 +3,13 @@
 // ═══════════════════════════════════════
 
 const LADDER = {
-    '-4': 'Abysmal', '-3': 'Catastrophic',
-    '-2': 'Terrible', '-1': 'Poor',
-    '0': 'Mediocre', '1': 'Average',
-    '2': 'Fair', '3': 'Good',
-    '4': 'Great', '5': 'Superb',
-    '6': 'Fantastic', '7': 'Epic',
-    '8': 'Legendary'
+    '-4': 'Berbat', '-3': 'Kötü',
+    '-2': 'Korkunç', '-1': 'Zayıf',
+    '0': 'Sıradan', '1': 'Ortalama',
+    '2': 'Adil', '3': 'İyi',
+    '4': 'Harika', '5': 'Mükemmel',
+    '6': 'İnanılmaz', '7': 'Epik',
+    '8': 'Efsanevi'
 };
 
 /**

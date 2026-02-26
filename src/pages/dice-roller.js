@@ -7,15 +7,15 @@ import { SKILL_LIST, SKILL_TRANSLATIONS } from '../engine/skills.js';
 import { showToast } from '../components/toast.js';
 
 export function renderDiceRollerPage(container) {
-    let rollHistory = [];
-    let selectedSkill = '';
-    let skillRating = 0;
-    let bonus = 0;
-    let difficulty = 0;
-    let currentDice = null;
+  let rollHistory = [];
+  let selectedSkill = '';
+  let skillRating = 0;
+  let bonus = 0;
+  let difficulty = 0;
+  let currentDice = null;
 
-    function render() {
-        container.innerHTML = `
+  function render() {
+    container.innerHTML = `
       <div class="dice-page">
         <div class="section-header animate-in">
           <h2>🎲 Zar Atma</h2>
@@ -41,10 +41,10 @@ export function renderDiceRollerPage(container) {
               </div>
 
               ${currentDice ? (() => {
-                const result = calculateResult(currentDice, skillRating, bonus);
-                const out = getOutcome(result, difficulty);
-                const display = getOutcomeDisplay(out.outcome);
-                return `
+        const result = calculateResult(currentDice, skillRating, bonus);
+        const out = getOutcome(result, difficulty);
+        const display = getOutcomeDisplay(out.outcome);
+        return `
                   <div class="roll-result">
                     <div class="result-total" style="font-size: 2.5rem; font-weight: 900; color: ${display.color}; margin-bottom: var(--sp-sm);">
                       ${display.emoji} ${result >= 0 ? '+' : ''}${result}
@@ -59,12 +59,11 @@ export function renderDiceRollerPage(container) {
                       Zar: ${currentDice.reduce((s, d) => s + d, 0) >= 0 ? '+' : ''}${currentDice.reduce((s, d) => s + d, 0)}
                       ${skillRating ? ` | Yetenek: +${skillRating}` : ''}
                       ${bonus ? ` | Bonus: +${bonus}` : ''}
-                      ${difficulty ? ` | Zorluk: +${difficulty}` : ''}
                       | Shift: ${out.shifts >= 0 ? '+' : ''}${out.shifts}
                     </div>
                   </div>
                 `;
-            })() : `
+      })() : `
                 <p style="color: var(--text-muted); font-style: italic;">Zar atın ve sonucu görün</p>
               `}
 
@@ -106,16 +105,6 @@ export function renderDiceRollerPage(container) {
                     `).join('')}
                   </select>
                 </div>
-                <div>
-                  <label class="label">Zorluk</label>
-                  <select class="select" id="difficulty-select">
-                    ${[0, 1, 2, 3, 4, 5, 6, 7, 8].map(d => `
-                      <option value="${d}" ${d === difficulty ? 'selected' : ''}>
-                        +${d} ${getLadderLabel(d)}
-                      </option>
-                    `).join('')}
-                  </select>
-                </div>
               </div>
             </div>
           </div>
@@ -126,7 +115,7 @@ export function renderDiceRollerPage(container) {
             <div class="card" style="margin-bottom: var(--sp-lg);">
               <h3 style="margin-bottom: var(--sp-md); font-family: var(--font-display);">Merdiven</h3>
               <div style="display: flex; flex-direction: column; gap: 4px;">
-                ${[8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2].map(v => `
+                ${[8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4].map(v => `
                   <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-radius: 4px;
                     background: ${currentDice && calculateResult(currentDice, skillRating, bonus) === v ? 'rgba(240,165,0,0.1)' : 'transparent'};">
                     <span class="ladder-label" data-value="${v}" style="font-size: 0.8rem;">
@@ -144,8 +133,8 @@ export function renderDiceRollerPage(container) {
               ${rollHistory.length > 0 ? `
                 <div class="action-log">
                   ${rollHistory.slice().reverse().map(h => {
-                const disp = getOutcomeDisplay(h.outcome);
-                return `
+        const disp = getOutcomeDisplay(h.outcome);
+        return `
                       <div class="log-entry roll">
                         <span style="color: ${disp.color}; font-weight: 700;">
                           ${disp.emoji} ${h.result >= 0 ? '+' : ''}${h.result}
@@ -154,7 +143,7 @@ export function renderDiceRollerPage(container) {
                         ${h.skill ? `<span style="margin-left: 8px; color: var(--text-muted);">(${SKILL_TRANSLATIONS[h.skill] || h.skill} +${h.skillRating})</span>` : ''}
                       </div>
                     `;
-            }).join('')}
+      }).join('')}
                 </div>
               ` : `
                 <div class="empty-state" style="padding: var(--sp-lg);">
@@ -167,45 +156,42 @@ export function renderDiceRollerPage(container) {
       </div>
     `;
 
-        // Event listeners
-        document.getElementById('roll-btn').addEventListener('click', doRoll);
-        document.getElementById('skill-select').addEventListener('change', e => {
-            selectedSkill = e.target.value;
-        });
-        document.getElementById('skill-rating').addEventListener('change', e => {
-            skillRating = parseInt(e.target.value);
-        });
-        document.getElementById('bonus-select').addEventListener('change', e => {
-            bonus = parseInt(e.target.value);
-        });
-        document.getElementById('difficulty-select').addEventListener('change', e => {
-            difficulty = parseInt(e.target.value);
-        });
-    }
+    // Event listeners
+    document.getElementById('roll-btn').addEventListener('click', doRoll);
+    document.getElementById('skill-select').addEventListener('change', e => {
+      selectedSkill = e.target.value;
+    });
+    document.getElementById('skill-rating').addEventListener('change', e => {
+      skillRating = parseInt(e.target.value);
+    });
+    document.getElementById('bonus-select').addEventListener('change', e => {
+      bonus = parseInt(e.target.value);
+    });
+  }
 
-    function doRoll() {
-        currentDice = rollFateDice();
-        const result = calculateResult(currentDice, skillRating, bonus);
-        const out = getOutcome(result, difficulty);
-        const display = getOutcomeDisplay(out.outcome);
+  function doRoll() {
+    currentDice = rollFateDice();
+    const result = calculateResult(currentDice, skillRating, bonus);
+    const out = getOutcome(result, difficulty);
+    const display = getOutcomeDisplay(out.outcome);
 
-        rollHistory.push({
-            dice: [...currentDice],
-            skill: selectedSkill,
-            skillRating,
-            bonus,
-            difficulty,
-            result,
-            outcome: out.outcome,
-            shifts: out.shifts,
-            timestamp: Date.now()
-        });
-
-        render();
-        showToast(`${display.emoji} ${display.label}: ${result >= 0 ? '+' : ''}${result}`,
-            out.outcome === 'fail' ? 'error' : 'success'
-        );
-    }
+    rollHistory.push({
+      dice: [...currentDice],
+      skill: selectedSkill,
+      skillRating,
+      bonus,
+      difficulty,
+      result,
+      outcome: out.outcome,
+      shifts: out.shifts,
+      timestamp: Date.now()
+    });
 
     render();
+    showToast(`${display.emoji} ${display.label}: ${result >= 0 ? '+' : ''}${result}`,
+      out.outcome === 'fail' ? 'error' : 'success'
+    );
+  }
+
+  render();
 }
