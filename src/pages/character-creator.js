@@ -5,7 +5,7 @@
 import { createCharacter, updateStressLimits } from '../engine/character.js';
 import { SKILL_LIST, getSkillTranslation, PYRAMID_STRUCTURE, validateSkillPyramid, getRatingLabel } from '../engine/skills.js';
 import { t } from '../engine/i18n.js';
-import { saveCharacter } from '../engine/storage.js';
+import { saveCharacter, getCharacter } from '../engine/storage.js';
 import { showToast } from '../components/toast.js';
 
 const STEPS = [
@@ -16,9 +16,30 @@ const STEPS = [
   { id: 'summary', labelKey: 'creator.step.summary' },
 ];
 
-export function renderCharacterCreatorPage(container, navigate) {
+export async function renderCharacterCreatorPage(container, navigate, params = {}) {
   let currentStep = 0;
-  let character = createCharacter();
+  let character;
+
+  // Load existing character if editing, otherwise create new
+  if (params.id) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>${t('loading')}</p></div>`;
+    try {
+      character = await getCharacter(params.id);
+      if (!character) throw new Error(t('error.character_not_found'));
+    } catch (err) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">⚠</div>
+          <p>${err.message}</p>
+          <button class="btn btn-gold" id="back-home" style="margin-top: 1rem;">${t('home.back_to_home')}</button>
+        </div>
+      `;
+      container.querySelector('#back-home')?.addEventListener('click', () => navigate('home'));
+      return;
+    }
+  } else {
+    character = createCharacter();
+  }
 
   function renderWizardProgress() {
     return `
@@ -222,12 +243,14 @@ export function renderCharacterCreatorPage(container, navigate) {
     }
   }
 
+  const isEditing = !!params.id;
+
   function render() {
     container.innerHTML = `
       <div class="creator-page">
         <div class="section-header animate-in">
-          <h2>${t('creator.title')}</h2>
-          <p>${t('creator.subtitle')}</p>
+          <h2>${isEditing ? t('creator.edit_title') : t('creator.title')}</h2>
+          <p>${isEditing ? t('creator.edit_subtitle') : t('creator.subtitle')}</p>
         </div>
         ${renderWizardProgress()}
         ${renderStepContent()}

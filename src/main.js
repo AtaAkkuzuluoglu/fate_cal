@@ -20,7 +20,7 @@ const routes = {
   'auth': (c, nav, p) => renderAuthPage(c, nav),
   'home': (c, nav, p) => renderHomePage(c, nav),
   'dice-roller': (c, nav, p) => renderDiceRollerPage(c),
-  'character-creator': (c, nav, p) => renderCharacterCreatorPage(c, nav),
+  'character-creator': (c, nav, p) => renderCharacterCreatorPage(c, nav, p),
   'character-sheet': (c, nav, p) => renderCharacterSheetPage(c, nav, p),
   'campaign': (c, nav, p) => renderCampaignPage(c, nav),
 };

@@ -97,6 +97,8 @@ const dictionary = {
     // Creator Steps
     'creator.title': { tr: '✦ Karakter Oluştur', en: '✦ Create Character' },
     'creator.subtitle': { tr: 'Adım adım karakterinizi yaratın', en: 'Create your character step by step' },
+    'creator.edit_title': { tr: '✎ Karakteri Düzenle', en: '✎ Edit Character' },
+    'creator.edit_subtitle': { tr: 'Karakter bilgilerini güncelle', en: 'Update character details' },
     'creator.step.basics': { tr: 'Temel', en: 'Basics' },
     'creator.step.aspects': { tr: 'Aspect', en: 'Aspects' },
     'creator.step.skills': { tr: 'Yetenekler', en: 'Skills' },
