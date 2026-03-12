@@ -7,7 +7,7 @@ import { t } from '../engine/i18n.js';
 
 export async function renderHomePage(container, navigate) {
   // Show loading state
-  container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Loading...</p></div>`;
+  container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>${t('loading')}</p></div>`;
 
   const characters = await loadCharacters();
 
@@ -85,8 +85,10 @@ export async function renderHomePage(container, navigate) {
   `;
 
   // Styles
-  const style = document.createElement('style');
-  style.textContent = `
+  if (!document.getElementById('home-style')) {
+    const style = document.createElement('style');
+    style.id = 'home-style';
+    style.textContent = `
     .hero {
       text-align: center;
       padding: var(--sp-3xl) 0;
@@ -184,7 +186,8 @@ export async function renderHomePage(container, navigate) {
       .hero-condensed { font-size: 0.9rem; letter-spacing: 6px; }
     }
   `;
-  container.appendChild(style);
+    container.appendChild(style);
+  }
 
   // Events
   document.getElementById('qa-create')?.addEventListener('click', () => navigate('character-creator'));

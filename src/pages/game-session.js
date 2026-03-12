@@ -9,9 +9,10 @@ import { invoke, compel } from '../engine/fate-points.js';
 import { SKILL_LIST, getSkillTranslation } from '../engine/skills.js';
 import { saveCharacter, getCharacter } from '../engine/storage.js';
 import { showToast } from '../components/toast.js';
+import { t } from '../engine/i18n.js';
 
 export async function renderGameSessionPage(container, navigate) {
-  container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Yükleniyor...</p></div>`;
+  container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>${t('loading')}</p></div>`;
   const allCharacters = await loadCharacters();
   let session = (await loadSession()) || { scene: null, selectedCharacters: [] };
   let activeCharId = session.selectedCharacters?.[0] || null;
@@ -25,15 +26,15 @@ export async function renderGameSessionPage(container, navigate) {
     container.innerHTML = `
       <div class="session-page">
         <div class="section-header animate-in">
-          <h2>⚡ Oyun Oturumu</h2>
-          <p>Sahne yönetimi ve aksiyon çözümü</p>
+          <h2>${t('session.title')}</h2>
+          <p>${t('session.subtitle')}</p>
         </div>
 
         ${allCharacters.length === 0 ? `
           <div class="empty-state">
             <div class="empty-icon">✦</div>
-            <p>Oyuna başlamak için önce karakter oluşturun</p>
-            <button class="btn btn-gold" id="go-create">Karakter Oluştur</button>
+            <p>${t('session.no_chars')}</p>
+            <button class="btn btn-gold" id="go-create">${t('session.create_char')}</button>
           </div>
         ` : `
           <div class="grid-2">
@@ -41,12 +42,12 @@ export async function renderGameSessionPage(container, navigate) {
             <div>
               <!-- Character Select -->
               <div class="card animate-in animate-in-delay-1" style="margin-bottom: var(--sp-lg);">
-                <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">Aktif Karakter</h3>
+                <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">${t('session.active_char')}</h3>
                 <div style="display: flex; gap: var(--sp-sm); flex-wrap: wrap;">
                   ${allCharacters.map(c => `
                     <button class="btn ${activeCharId === c.id ? 'btn-gold' : 'btn-outline'} btn-sm char-select-btn" 
                             data-id="${c.id}">
-                      ${c.name || 'İsimsiz'}
+                      ${c.name || t('session.unnamed')}
                     </button>
                   `).join('')}
                 </div>
@@ -67,22 +68,22 @@ export async function renderGameSessionPage(container, navigate) {
               <!-- Scene Launcher -->
               ${!session.scene ? `
                 <div class="card animate-in animate-in-delay-2" style="margin-bottom: var(--sp-lg);">
-                  <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">Sahne Başlat</h3>
+                  <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">${t('session.start_scene')}</h3>
                   <div style="display: flex; flex-direction: column; gap: var(--sp-sm);">
                     <button class="btn btn-purple scene-start-btn" data-type="conflict">
-                      ⚔ Conflict — Çatışma
+                      ⚔ Conflict
                     </button>
                     <button class="btn btn-outline scene-start-btn" data-type="contest">
-                      🏃 Contest — Yarışma
+                      🏃 Contest
                     </button>
                     <button class="btn btn-outline scene-start-btn" data-type="challenge">
-                      🧩 Challenge — Mücadele
+                      🧩 Challenge
                     </button>
                   </div>
                   <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: var(--sp-md);">
-                    <strong>Conflict:</strong> Fiziksel/sosyal çatışma<br/>
-                    <strong>Contest:</strong> Rakipler arası yarış<br/>
-                    <strong>Challenge:</strong> Engeller dizisi
+                    <strong>Conflict:</strong> ${t('session.conflict_desc')}<br/>
+                    <strong>Contest:</strong> ${t('session.contest_desc')}<br/>
+                    <strong>Challenge:</strong> ${t('session.challenge_desc')}
                   </p>
                 </div>
               ` : `
@@ -96,7 +97,7 @@ export async function renderGameSessionPage(container, navigate) {
                       ${session.scene.type === 'conflict' ? `
                         <span class="badge badge-purple">Round ${session.scene.round}</span>
                       ` : ''}
-                      <button class="btn btn-danger btn-sm" id="end-scene-btn">Sahneyi Bitir</button>
+                      <button class="btn btn-danger btn-sm" id="end-scene-btn">${t('session.end_scene')}</button>
                     </div>
                   </div>
 
@@ -107,32 +108,32 @@ export async function renderGameSessionPage(container, navigate) {
 
                 <!-- Situation Aspects -->
                 <div class="card animate-in animate-in-delay-3" style="margin-bottom: var(--sp-lg);">
-                  <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">Durum Aspect'leri</h3>
+                  <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">${t('session.situation_aspects')}</h3>
                   <div style="display: flex; gap: var(--sp-sm); margin-bottom: var(--sp-md);">
-                    <input class="input" id="new-aspect-input" placeholder="Yeni durum aspect'i..." style="flex: 1;" />
+                    <input class="input" id="new-aspect-input" placeholder="${t('session.new_aspect_ph')}" style="flex: 1;" />
                     <button class="btn btn-outline btn-sm" id="add-aspect-btn">+</button>
                   </div>
                   ${session.scene.situationAspects?.length > 0 ? session.scene.situationAspects.map((a, i) => `
                     <div class="aspect-card free" style="margin-bottom: var(--sp-sm); display: flex; justify-content: space-between; align-items: center;">
                       <div>
-                        <div class="aspect-type">Durum</div>
+                        <div class="aspect-type">${t('session.situation')}</div>
                         <div class="aspect-text">${a.text}</div>
-                        ${a.freeInvokes > 0 ? `<span class="badge badge-gold" style="margin-top: 4px;">Ücretsiz Invoke: ${a.freeInvokes}</span>` : ''}
+                        ${a.freeInvokes > 0 ? `<span class="badge badge-gold" style="margin-top: 4px;">${t('session.free_invoke')}: ${a.freeInvokes}</span>` : ''}
                       </div>
                       <button class="btn btn-sm btn-outline remove-aspect-btn" data-index="${i}">✕</button>
                     </div>
-                  `).join('') : '<p style="color: var(--text-muted); font-size: 0.85rem;">Henüz aspect eklenmedi</p>'}
+                  `).join('') : `<p style="color: var(--text-muted); font-size: 0.85rem;">${t('session.no_aspects')}</p>`}
                 </div>
               `}
 
               <!-- Quick Actions -->
               <div class="card animate-in animate-in-delay-3">
-                <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">Hızlı Aksiyon</h3>
+                <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">${t('session.quick_actions')}</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-sm);">
                   <div>
-                    <label class="label">Yetenek</label>
+                    <label class="label">${t('session.skill')}</label>
                     <select class="select" id="action-skill">
-                      <option value="0">Seçin...</option>
+                      <option value="0">${t('session.select')}</option>
                       ${getActiveChar() ? Object.entries(getActiveChar().skills)
         .filter(([, r]) => r > 0)
         .sort(([, a], [, b]) => b - a)
@@ -141,7 +142,7 @@ export async function renderGameSessionPage(container, navigate) {
                     </select>
                   </div>
                   <div>
-                    <label class="label">Zorluk</label>
+                    <label class="label">${t('session.difficulty')}</label>
                     <select class="select" id="action-difficulty">
                       ${[0, 1, 2, 3, 4, 5, 6, 7, 8].map(d => `<option value="${d}">+${d} ${getLadderLabel(d)}</option>`).join('')}
                     </select>
@@ -159,7 +160,7 @@ export async function renderGameSessionPage(container, navigate) {
             <!-- Right: Action Log -->
             <div>
               <div class="card animate-in animate-in-delay-2" style="position: sticky; top: 80px;">
-                <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">📜 Olay Günlüğü</h3>
+                <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">${t('session.action_log')}</h3>
                 <div class="action-log" id="action-log">
                   ${(session.scene?.log || []).length > 0 ?
         session.scene.log.slice().reverse().map(entry => `
@@ -171,7 +172,7 @@ export async function renderGameSessionPage(container, navigate) {
                       </div>
                     `).join('') : `
                       <div class="empty-state" style="padding: var(--sp-lg);">
-                        <p style="color: var(--text-muted); font-size: 0.85rem;">Henüz aksiyon yapılmadı</p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">${t('session.no_actions')}</p>
                       </div>
                     `
       }
@@ -189,7 +190,7 @@ export async function renderGameSessionPage(container, navigate) {
   function renderConflictUI() {
     return `
       <div>
-        <span class="label">Sıra (tıklayarak seçin)</span>
+        <span class="label">${t('session.turn_order')}</span>
         <div style="display: flex; gap: var(--sp-sm); flex-wrap: wrap;">
           ${(session.scene.participants || []).map(p => `
             <button class="btn btn-sm ${p.hasActed ? 'btn-outline' : 'btn-purple'} turn-btn" 
@@ -205,7 +206,7 @@ export async function renderGameSessionPage(container, navigate) {
   function renderContestUI() {
     return `
       <div>
-        <span class="label">Zaferler (${session.scene.victoriesNeeded} gerekli)</span>
+        <span class="label">${t('session.victories')} (${session.scene.victoriesNeeded} ${t('session.required')})</span>
         <div style="display: flex; flex-direction: column; gap: var(--sp-sm);">
           ${(session.scene.participants || []).map(p => `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--sp-sm); background: rgba(255,255,255,0.03); border-radius: var(--radius-sm);">
@@ -226,18 +227,18 @@ export async function renderGameSessionPage(container, navigate) {
   function renderChallengeUI() {
     return `
       <div>
-        <span class="label">Engeller</span>
+        <span class="label">${t('session.obstacles')}</span>
         <div style="display: flex; flex-direction: column; gap: var(--sp-sm);">
           ${(session.scene.obstacles || []).map((o, i) => `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--sp-sm); background: rgba(255,255,255,0.03); border-radius: var(--radius-sm);">
               <div>
                 <span ${o.resolved ? 'style="text-decoration: line-through; opacity: 0.5;"' : ''}>${o.description}</span>
-                <span class="badge badge-gold" style="margin-left: var(--sp-sm);">Zorluk: +${o.difficulty}</span>
+                <span class="badge badge-gold" style="margin-left: var(--sp-sm);">${t('session.difficulty_label')}: +${o.difficulty}</span>
               </div>
               ${!o.resolved ? `
-                <button class="btn btn-sm btn-outline obstacle-btn" data-index="${i}">Çöz</button>
+                <button class="btn btn-sm btn-outline obstacle-btn" data-index="${i}">${t('session.resolve')}</button>
               ` : `
-                <span class="badge badge-success">✓ Çözüldü</span>
+                <span class="badge badge-success">${t('session.resolved')}</span>
               `}
             </div>
           `).join('')}
@@ -294,7 +295,7 @@ export async function renderGameSessionPage(container, navigate) {
           ]);
         }
         await saveSession(session);
-        showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} sahnesi başlatıldı!`, 'success');
+        showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} ${t('session.scene_started')}`, 'success');
         render();
       });
     });
@@ -305,7 +306,7 @@ export async function renderGameSessionPage(container, navigate) {
         endScene(session.scene);
         session.scene = null;
         await saveSession(session);
-        showToast('Sahne sona erdi', 'info');
+        showToast(t('session.scene_ended'), 'info');
         render();
       }
     });
@@ -328,10 +329,10 @@ export async function renderGameSessionPage(container, navigate) {
           const p = session.scene.participants.find(p => p.characterId === btn.dataset.char);
           if (p) {
             p.victories++;
-            logAction(session.scene, 'advantage', `${p.name} 1 zafer kazandı (${p.victories}/${session.scene.victoriesNeeded})`);
+            logAction(session.scene, 'advantage', `${p.name} 1 ${t('session.victory_earned')} (${p.victories}/${session.scene.victoriesNeeded})`);
             if (p.victories >= session.scene.victoriesNeeded) {
-              logAction(session.scene, 'info', `🏆 ${p.name} yarışmayı kazandı!`);
-              showToast(`${p.name} yarışmayı kazandı!`, 'success');
+              logAction(session.scene, 'info', `🏆 ${p.name} ${t('session.won_contest')}`);
+              showToast(`${p.name} ${t('session.won_contest')}`, 'success');
             }
             await saveSession(session);
             render();
@@ -356,7 +357,7 @@ export async function renderGameSessionPage(container, navigate) {
             obstacle.resolved = out.outcome !== 'fail';
             obstacle.result = out.outcome;
             logAction(session.scene, 'roll',
-              `${getActiveChar()?.name || 'Oyuncu'} engeli çözmeye çalıştı: ${obstacle.description} → ${disp.emoji} ${disp.label} (${result >= 0 ? '+' : ''}${result} vs +${obstacle.difficulty})`
+              `${getActiveChar()?.name || t('session.player')} ${t('session.tried_obstacle')}: ${obstacle.description} → ${disp.emoji} ${disp.label} (${result >= 0 ? '+' : ''}${result} ${t('session.vs')} +${obstacle.difficulty})`
             );
             await saveSession(session);
             showToast(`${disp.emoji} ${disp.label}`, out.outcome === 'fail' ? 'error' : 'success');

@@ -9,7 +9,7 @@ let pool = null;
 async function getDb() {
     if (!pool) {
         if (!process.env.POSTGRES_URL) {
-            console.warn('POSTGRES_URL is not set. The database connection will fail.');
+            throw new Error('POSTGRES_URL environment variable is not set. Database connection cannot be established.');
         }
         pool = createPool({
             connectionString: process.env.POSTGRES_URL

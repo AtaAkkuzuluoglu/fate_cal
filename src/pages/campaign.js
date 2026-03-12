@@ -95,7 +95,7 @@ export async function renderCampaignPage(container, navigate) {
                             ` : `
                                 <div style="display: flex; flex-direction: column; gap: var(--sp-sm);">
                                     ${characters.map(c => `
-                                        <div class="aspect-card free" style="cursor: pointer;" onclick="window.location.hash = 'character-sheet/${c.id}'">
+                                        <div class="aspect-card free campaign-char-card" style="cursor: pointer;" data-id="${c.id}">
                                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                                 <div>
                                                     <div style="font-weight: 600; font-size: 1.1rem; color: var(--gold);">${c.name || t('creator.summary.unnamed')}</div>
@@ -181,6 +181,12 @@ export async function renderCampaignPage(container, navigate) {
                 navigate('character-creator');
             });
         }
+
+        container.querySelectorAll('.campaign-char-card').forEach(card => {
+            card.addEventListener('click', () => {
+                navigate('character-sheet', { id: card.dataset.id });
+            });
+        });
     }
 
     render();
