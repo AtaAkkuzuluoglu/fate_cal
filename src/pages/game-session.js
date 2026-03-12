@@ -159,7 +159,7 @@ export async function renderGameSessionPage(container, navigate) {
 
             <!-- Right: Action Log -->
             <div>
-              <div class="card animate-in animate-in-delay-2" style="position: sticky; top: 80px;">
+              <div class="card animate-in animate-in-delay-2 action-log-card-sticky" style="position: sticky; top: 80px;">
                 <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-md);">${t('session.action_log')}</h3>
                 <div class="action-log" id="action-log">
                   ${(session.scene?.log || []).length > 0 ?

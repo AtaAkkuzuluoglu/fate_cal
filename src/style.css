@@ -1313,6 +1313,11 @@ h3 {
     word-break: break-word;
   }
 
+  .sheet-page code {
+    overflow-wrap: break-word;
+    word-break: break-all;
+  }
+
   .sheet-header {
     flex-direction: column !important;
     gap: var(--sp-md);
@@ -1324,6 +1329,37 @@ h3 {
 
   .card {
     overflow: hidden;
+  }
+
+  /* Toast above mobile tab bar */
+  #toast-container {
+    bottom: 80px;
+  }
+
+  /* Remove sticky on mobile - it breaks when grid is single column */
+  .action-log-card-sticky {
+    position: static !important;
+  }
+
+  /* Skill selects: full width on mobile */
+  .skill-select {
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Campaign notes: reduce min-height on mobile */
+  .campaign-notes-card {
+    min-height: auto !important;
+  }
+
+  /* Auth role radio buttons: stack vertically on mobile */
+  .auth-role-group {
+    flex-direction: column !important;
+  }
+
+  .auth-role-group label {
+    padding: 14px !important;
+    min-height: 44px;
   }
 }
 

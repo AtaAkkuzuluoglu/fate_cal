@@ -45,7 +45,7 @@ export function renderAuthPage(container, navigate) {
               </div>
               <div class="form-group" style="margin-top: var(--sp-sm);">
                 <label class="label">Rolünüz</label>
-                <div style="display: flex; gap: var(--sp-sm);">
+                <div class="auth-role-group" style="display: flex; gap: var(--sp-sm);">
                   <label style="flex: 1; display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px; background: rgba(255,255,255,0.05); border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
                     <input type="radio" name="auth-role" value="player" checked>
                     <span>Oyuncu</span>

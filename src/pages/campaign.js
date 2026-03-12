@@ -48,7 +48,7 @@ export async function renderCampaignPage(container, navigate) {
 
                 <div class="grid-2">
                     <!-- Left: Shared Notes -->
-                    <div class="card animate-in animate-in-delay-1" style="display: flex; flex-direction: column; min-height: 500px;">
+                    <div class="card animate-in animate-in-delay-1" class="campaign-notes-card" style="display: flex; flex-direction: column; min-height: 500px;">
                         <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-sm);">
                             ${t('campaign.notes_title')}
                         </h3>

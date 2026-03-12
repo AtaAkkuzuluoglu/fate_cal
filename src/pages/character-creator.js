@@ -121,7 +121,7 @@ export async function renderCharacterCreatorPage(container, navigate, params = {
           const current = assigned[idx] || '';
           return `
                       <select class="select skill-select" data-rating="${level.rating}" data-index="${idx}"
-                              style="min-width: 180px; max-width: 220px;">
+                              style="min-width: 140px; max-width: 220px;">
                         <option value="">${t('creator.skills.select')}</option>
                         ${SKILL_LIST.map(s => `
                           <option value="${s}" 
