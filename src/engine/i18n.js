@@ -147,6 +147,12 @@ const dictionary = {
     'sheet.refresh_button': { tr: 'Refresh ({refresh})', en: 'Refresh ({refresh})' },
     'sheet.adventure_code': { tr: 'Serüven Kodu', en: 'Campaign Code' },
     'sheet.shift_label': { tr: 'shift', en: 'shift' },
+    'sheet.mana': { tr: 'Mana', en: 'Mana' },
+    'sheet.clear_mana': { tr: 'Mana Temizle', en: 'Clear Mana' },
+    'sheet.mana_unlocked': { tr: '{count} kutu açık', en: '{count} boxes unlocked' },
+    'sheet.mana_locked': { tr: 'Kilitli', en: 'Locked' },
+    'sheet.dm_unlock': { tr: 'Kilidi Aç', en: 'Unlock' },
+    'sheet.dm_lock': { tr: 'Kilitle', en: 'Lock' },
 
     'pyramid.4': { tr: 'Harika', en: 'Great' },
     'pyramid.3': { tr: 'İyi', en: 'Good' },

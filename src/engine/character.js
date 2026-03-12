@@ -27,6 +27,10 @@ export function createCharacter(overrides = {}) {
             physical: [false, false],
             mental: [false, false]
         },
+        mana: {
+            boxes: Array(10).fill(false),
+            unlockedCount: 2
+        },
         consequences: {
             mild: null,      // string or null
             moderate: null,
@@ -52,6 +56,40 @@ export function toggleStress(character, track, index) {
 }
 
 /**
+ * Toggle a mana stress box (only if within unlocked range)
+ */
+export function toggleMana(character, index) {
+    if (character.mana && index < character.mana.unlockedCount && index < character.mana.boxes.length) {
+        character.mana.boxes[index] = !character.mana.boxes[index];
+    }
+    return character;
+}
+
+/**
+ * Clear all mana stress boxes
+ */
+export function clearMana(character) {
+    if (character.mana) {
+        character.mana.boxes = character.mana.boxes.map(() => false);
+    }
+    return character;
+}
+
+/**
+ * Update the number of unlocked mana boxes (DM only, 2-10)
+ */
+export function updateManaUnlock(character, count) {
+    if (character.mana) {
+        character.mana.unlockedCount = Math.max(2, Math.min(10, count));
+        // Shrink boxes array if needed
+        while (character.mana.boxes.length < character.mana.unlockedCount) {
+            character.mana.boxes.push(false);
+        }
+    }
+    return character;
+}
+
+/**
  * Set a consequence
  */
 export function setConsequence(character, severity, text) {
@@ -65,6 +103,9 @@ export function setConsequence(character, severity, text) {
 export function clearStress(character) {
     character.stress.physical = character.stress.physical.map(() => false);
     character.stress.mental = character.stress.mental.map(() => false);
+    if (character.mana) {
+        character.mana.boxes = character.mana.boxes.map(() => false);
+    }
     return character;
 }
 

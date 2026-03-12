@@ -2,12 +2,12 @@
 // Character Sheet — View & manage
 // ═══════════════════════════════════════
 
-import { toggleStress, setConsequence, clearStress, updateStressLimits } from '../engine/character.js';
+import { toggleStress, setConsequence, clearStress, updateStressLimits, toggleMana, clearMana, updateManaUnlock } from '../engine/character.js';
 import { invoke, compel, earnFP, spendFP, refreshPoints } from '../engine/fate-points.js';
 import { SKILL_LIST, getSkillTranslation, PYRAMID_STRUCTURE, getRatingLabel } from '../engine/skills.js';
 import { t } from '../engine/i18n.js';
 import { rollFateDice, calculateResult, getOutcome, getLadderLabel, getDieSymbol, getDieClass, getOutcomeDisplay } from '../engine/dice.js';
-import { getCharacter, saveCharacter, deleteCharacter } from '../engine/storage.js';
+import { getCharacter, saveCharacter, deleteCharacter, getCurrentUser } from '../engine/storage.js';
 import { showToast } from '../components/toast.js';
 
 export async function renderCharacterSheetPage(container, navigate, params = {}) {
@@ -16,6 +16,11 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
   try {
     character = await getCharacter(params.id);
     if (!character) throw new Error(t('error.character_not_found'));
+    // Ensure mana track exists for characters created before this feature
+    if (!character.mana) {
+      character.mana = { boxes: Array(10).fill(false), unlockedCount: 2 };
+      await saveCharacter(character);
+    }
   } catch (err) {
     container.innerHTML = `
       <div class="empty-state">
@@ -29,6 +34,8 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
   }
 
   let lastRoll = null;
+  const currentUser = getCurrentUser();
+  const isDM = currentUser?.role === 'dm';
 
   async function save() {
     await saveCharacter(character);
@@ -182,6 +189,35 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
               </div>
             </div>
 
+            <!-- Mana -->
+            <div class="card animate-in animate-in-delay-3" style="margin-bottom: var(--sp-lg);">
+              <h3 style="font-family: var(--font-display); color: var(--purple); border-bottom: 2px solid var(--border-color); padding-bottom: var(--sp-sm); margin-bottom: var(--sp-md); display: flex; justify-content: space-between; align-items: center;">
+                ${t('sheet.mana')}
+                <div style="display: flex; gap: var(--sp-sm); align-items: center;">
+                  ${isDM ? `
+                    <button class="btn btn-outline btn-sm" id="mana-unlock-minus" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">${t('sheet.dm_lock')}</button>
+                    <span class="badge badge-purple" id="mana-unlock-count">${character.mana?.unlockedCount || 2}</span>
+                    <button class="btn btn-outline btn-sm" id="mana-unlock-plus" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">${t('sheet.dm_unlock')}</button>
+                  ` : `
+                    <span class="badge badge-purple">${character.mana?.unlockedCount || 2}/10</span>
+                  `}
+                  <button class="btn btn-outline btn-sm" id="clear-mana" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">${t('sheet.clear_mana')}</button>
+                </div>
+              </h3>
+              <div class="mana-track">
+                ${Array.from({ length: 10 }, (_, i) => {
+                  const mana = character.mana || { boxes: Array(10).fill(false), unlockedCount: 2 };
+                  const filled = mana.boxes[i] || false;
+                  const unlocked = i < mana.unlockedCount;
+                  return `
+                    <div class="mana-box ${filled ? 'filled' : ''} ${unlocked ? '' : 'locked'}" data-index="${i}">
+                      ${filled ? '' : (i + 1)}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+
             <!-- Consequences -->
             <div class="card animate-in animate-in-delay-3" style="margin-bottom: var(--sp-lg);">
               <h3 style="font-family: var(--font-display); color: var(--gold); border-bottom: 2px solid var(--border-color); padding-bottom: var(--sp-sm); margin-bottom: var(--sp-md);">
@@ -269,6 +305,41 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
       await save(); render();
       showToast(t('toast.saved'), 'info');
     });
+
+    // Mana
+    container.querySelectorAll('.mana-box').forEach(box => {
+      box.addEventListener('click', async () => {
+        const index = parseInt(box.dataset.index);
+        const mana = character.mana || { boxes: Array(10).fill(false), unlockedCount: 2 };
+        if (index < mana.unlockedCount) {
+          toggleMana(character, index);
+          await save(); render();
+        }
+      });
+    });
+    document.getElementById('clear-mana')?.addEventListener('click', async () => {
+      clearMana(character);
+      await save(); render();
+      showToast(t('toast.saved'), 'info');
+    });
+    if (isDM) {
+      document.getElementById('mana-unlock-plus')?.addEventListener('click', async () => {
+        const mana = character.mana || { boxes: Array(10).fill(false), unlockedCount: 2 };
+        if (mana.unlockedCount < 10) {
+          updateManaUnlock(character, mana.unlockedCount + 1);
+          await save(); render();
+          showToast(t('sheet.mana_unlocked', { count: character.mana.unlockedCount }), 'success');
+        }
+      });
+      document.getElementById('mana-unlock-minus')?.addEventListener('click', async () => {
+        const mana = character.mana || { boxes: Array(10).fill(false), unlockedCount: 2 };
+        if (mana.unlockedCount > 2) {
+          updateManaUnlock(character, mana.unlockedCount - 1);
+          await save(); render();
+          showToast(t('sheet.mana_unlocked', { count: character.mana.unlockedCount }), 'info');
+        }
+      });
+    }
 
     // Consequences
     container.querySelectorAll('.consequence-input').forEach(input => {

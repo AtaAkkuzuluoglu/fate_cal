@@ -563,6 +563,52 @@ h3 {
   font-size: 1rem;
 }
 
+/* ── Mana Track ── */
+.mana-track {
+  display: flex;
+  gap: var(--sp-sm);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.mana-box {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--purple);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--purple-300);
+  background: var(--bg-input);
+}
+
+.mana-box:hover:not(.locked) {
+  border-color: var(--purple);
+  background: rgba(124, 58, 237, 0.1);
+}
+
+.mana-box.filled {
+  background: rgba(124, 58, 237, 0.25);
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.mana-box.filled::after {
+  content: '✕';
+  font-size: 1rem;
+}
+
+.mana-box.locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
 /* ── Skill Pyramid ── */
 .skill-pyramid {
   display: flex;
