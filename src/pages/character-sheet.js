@@ -264,12 +264,11 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
           </div>
         </div>
 
-        ${character.notes ? `
-          <div class="card animate-in" style="margin-top: var(--sp-lg);">
-            <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-sm);">${t('char.notes')}</h3>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; white-space: pre-wrap;">${character.notes}</p>
-          </div>
-        ` : ''}
+        <div class="card animate-in" style="margin-top: var(--sp-lg);">
+          <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-sm);">${t('char.notes')}</h3>
+          <textarea id="char-notes" class="input" style="width: 100%; min-height: 120px; resize: vertical; font-family: monospace;">${character.notes || ''}</textarea>
+          <button id="save-notes-btn" class="btn btn-gold" style="margin-top: var(--sp-sm);">${t('btn.save')}</button>
+        </div>
       </div>
     `;
 
@@ -360,6 +359,13 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
       render();
       const disp = getOutcomeDisplay(out.outcome);
       showToast(`${disp.emoji} ${disp.label}: ${result >= 0 ? '+' : ''}${result}`, out.outcome === 'fail' ? 'error' : 'success');
+    });
+
+    // Notes
+    document.getElementById('save-notes-btn')?.addEventListener('click', async () => {
+      character.notes = document.getElementById('char-notes').value;
+      await save();
+      showToast(t('toast.saved'), 'success');
     });
 
     // Edit / Delete
