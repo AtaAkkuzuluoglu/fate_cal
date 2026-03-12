@@ -123,6 +123,15 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
       }
           </div>
             </div>
+
+            <!-- Notes -->
+            <div class="card animate-in animate-in-delay-4" style="margin-bottom: var(--sp-lg);">
+              <h3 style="font-family: var(--font-display); color: var(--gold); border-bottom: 2px solid var(--border-color); padding-bottom: var(--sp-sm); margin-bottom: var(--sp-md);">
+                ${t('char.notes')}
+              </h3>
+              <textarea id="char-notes" class="input" style="width: 100%; min-height: 120px; resize: vertical; font-family: monospace;">${character.notes || ''}</textarea>
+              <button id="save-notes-btn" class="btn btn-gold" style="margin-top: var(--sp-sm);">${t('btn.save')}</button>
+            </div>
           </div>
 
           <!-- Right Column -->
@@ -264,11 +273,6 @@ export async function renderCharacterSheetPage(container, navigate, params = {})
           </div>
         </div>
 
-        <div class="card animate-in" style="margin-top: var(--sp-lg);">
-          <h3 style="font-family: var(--font-display); margin-bottom: var(--sp-sm);">${t('char.notes')}</h3>
-          <textarea id="char-notes" class="input" style="width: 100%; min-height: 120px; resize: vertical; font-family: monospace;">${character.notes || ''}</textarea>
-          <button id="save-notes-btn" class="btn btn-gold" style="margin-top: var(--sp-sm);">${t('btn.save')}</button>
-        </div>
       </div>
     `;
 
