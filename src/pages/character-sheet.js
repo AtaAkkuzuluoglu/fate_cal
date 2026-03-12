@@ -5,9 +5,8 @@
 import { toggleStress, setConsequence, clearStress, updateStressLimits } from '../engine/character.js';
 import { invoke, compel, earnFP, spendFP, refreshPoints } from '../engine/fate-points.js';
 import { SKILL_LIST, getSkillTranslation, PYRAMID_STRUCTURE, getRatingLabel } from '../engine/skills.js';
-import { runRoll } from '../engine/dice.js';
 import { t } from '../engine/i18n.js';
-import { calculateResult, getOutcome, getLadderLabel, getDieSymbol, getDieClass, getOutcomeDisplay } from '../engine/dice.js';
+import { rollFateDice, calculateResult, getOutcome, getLadderLabel, getDieSymbol, getDieClass, getOutcomeDisplay } from '../engine/dice.js';
 import { getCharacter, saveCharacter, deleteCharacter } from '../engine/storage.js';
 import { showToast } from '../components/toast.js';
 
